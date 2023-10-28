@@ -1,0 +1,39 @@
+﻿@page "/main"
+
+
+<RadzenSteps Change=@OnChange>
+    <Steps>
+        <RadzenStepsItem Text="Customers">
+            <RadzenText TextStyle="TextStyle.H5" TagName="TagName.H3" class="rz-my-6">2. Hello From Step 1</RadzenText>
+            
+        </RadzenStepsItem>
+        <RadzenStepsItem Text="Orders" Disabled="@(false)">
+            <RadzenText TextStyle="TextStyle.H5" TagName="TagName.H3" class="rz-my-6">2. Hello From Step 2</RadzenText>
+        </RadzenStepsItem>
+        <RadzenStepsItem Text="Order Details" Disabled="@(false)">
+            <RadzenText TextStyle="TextStyle.H5" TagName="TagName.H3" class="rz-my-6">2. Hello From Step 3</RadzenText>
+        </RadzenStepsItem>
+    </Steps>
+</RadzenSteps>
+
+@code {
+    
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+    }
+
+    void OnChange(int index)
+    {
+        //console.Log($"Step with index {index} was selected.");
+
+        if (index == 1)
+        {
+         
+        }
+        else if (index == 2)
+        {
+            
+        }
+    }
+}

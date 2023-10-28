@@ -1,19 +1,37 @@
 ﻿@inherits LayoutComponentBase
 
-<PageTitle>IntegrationBuilder</PageTitle>
-
-<div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
-
-    <main>
-        <div class="top-row px-4">
-            <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
-        </div>
-
-        <article class="content px-4">
+<RadzenLayout style="position: relative;grid-template-areas: 'rz-sidebar rz-header' 'rz-sidebar rz-body'">
+    <RadzenHeader>
+        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0">
+            <RadzenSidebarToggle Click="@(() => sidebarExpanded = !sidebarExpanded)" />
+            <RadzenLabel Text="Header" />
+        </RadzenStack>
+    </RadzenHeader>
+    <RadzenSidebar Responsive="false" @bind-Expanded="@sidebarExpanded" style="position: absolute; z-index: 3">
+        <RadzenStack AlignItems="AlignItems.End" Class="rz-p-2">
+            <RadzenButton Icon="west" Variant="Variant.Text" ButtonStyle="ButtonStyle.Secondary" Click="@(() => sidebarExpanded = false)" />
+        </RadzenStack>
+        <RadzenPanelMenu>
+            <RadzenPanelMenuItem Text="Create Integration Project" Icon="build" Path="main"/>
+            <RadzenPanelMenuItem Text="Use Vanna AI" Icon="account_box" />
+            <RadzenPanelMenuItem Text="Use HuggingChat" Icon="account_box" />
+            <RadzenPanelMenuItem Text="C# Classes from Json" Icon="account_box" />
+            <RadzenPanelMenuItem Text="Create Mapping" Icon="account_box" />
+        </RadzenPanelMenu>
+    </RadzenSidebar>
+    <RadzenBody>
+        <div class="rz-p-4">
             @Body
-        </article>
-    </main>
-</div>
+        </div>
+    </RadzenBody>
+    @if (sidebarExpanded)
+    {
+        <div @onclick="@(() => sidebarExpanded = false)" class="rz-dialog-mask" style="position: absolute; z-index: 2"></div>
+    }
+</RadzenLayout>
+
+@code {
+    bool sidebarExpanded = false;
+}
+
+<RadzenComponents />
