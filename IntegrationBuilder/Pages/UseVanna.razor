@@ -1,6 +1,9 @@
 ﻿@page "/usevanna"
-@using IntegrationBuilder.Pages.SQLServerUtilities;
-
+@using IntegrationBuilder.SQLServerUtilities;
+@using IntegrationBuilder.VannaAIUtilities;
+@using Microsoft.EntityFrameworkCore 
+@using System.Text;
+@inject IConfiguration configuration
 
 <RadzenSteps Change=@OnChangeStep>
     <Steps>
@@ -30,19 +33,55 @@
                 <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center" Gap="1rem" Class="rz-mt-8 rz-mb-4">
                     <RadzenButton ButtonType="ButtonType.Submit" Size="ButtonSize.Medium" Icon="save" Text="Check Connection" />
                 </RadzenStack>
-                    <RadzenRow Gap="1rem" JustifyContent="JustifyContent.Center">
-                        <RadzenColumn Size="9" SizeMD="3">
-                            <RadzenStack>
-                                <RadzenLabel Text="@_infomsgs"></RadzenLabel>
-                            </RadzenStack>
+                    <RadzenRow Gap="2rem" JustifyContent="JustifyContent.Center">
+                        <RadzenColumn Size="12" SizeMD="6">
+                            <RadzenCard>
+                                <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Info Log</RadzenText>
+                                <RadzenTextArea Disabled="true" @bind-Value=@_infomsgs class="w-100" />
+                            </RadzenCard>
                         </RadzenColumn>
                     </RadzenRow>
                     
                 </RadzenFieldset>
             </RadzenTemplateForm>
         </RadzenStepsItem>
-        <RadzenStepsItem Text="Create or Set Model" Disabled="@_DisabledStep2">
-            <RadzenText TextStyle="TextStyle.H5" TagName="TagName.H3" class="rz-my-6">2. Hello From Step 2</RadzenText>
+        <RadzenStepsItem Text="Create/Set Vanna AI Model" Disabled="@_DisabledStep2">
+            <RadzenTemplateForm TItem="VannaModel" Data=@this._vannaModel Submit=@CreateOrSetModel>
+
+                <RadzenFieldset Class="rz-color-secondary" Text="Create/Set Vanna AI Model">
+                    <RadzenRow Gap="1rem" JustifyContent="JustifyContent.Center">
+                        <RadzenColumn Size="9" SizeMD="3">
+                            <RadzenStack>
+                                <RadzenLabel Component="ModelName" Text="Vanna model" />
+                                <RadzenTextBox Name="ModelName" @bind-Value=@_vannaModel.ModelName />
+                                <RadzenRequiredValidator Component="ModelName" Text="Vanna model is required!" />
+                            </RadzenStack>
+                        </RadzenColumn>
+                    </RadzenRow>
+                    <RadzenRow Gap="1rem" JustifyContent="JustifyContent.Center">
+                        <RadzenColumn Size="9" SizeMD="3">
+                            <RadzenStack>
+                                <div class="rz-p-12 rz-text-align-center">
+                                    <RadzenCheckBox @bind-Value=@_vannaModel.NewModel Name="isNewModel" />
+                                    <RadzenLabel Text="Create New Model" Component="isNewModel" Style="margin-left: 8px; vertical-align: middle;" />
+                                </div>
+                            </RadzenStack>
+                        </RadzenColumn>
+                    </RadzenRow>
+                    <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center" Gap="1rem" Class="rz-mt-8 rz-mb-4">
+                        <RadzenButton ButtonType="ButtonType.Submit" Size="ButtonSize.Medium" Icon="save" Text="Create/Set Model" />
+                    </RadzenStack>
+                    <RadzenRow Gap="2rem" JustifyContent="JustifyContent.Center">
+                        <RadzenColumn Size="12" SizeMD="6">
+                            <RadzenCard>
+                                <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Info Log</RadzenText>
+                                <RadzenTextArea Disabled="true" @bind-Value=@_infomsgs class="w-100" />
+                            </RadzenCard>
+                        </RadzenColumn>
+                    </RadzenRow>
+
+                </RadzenFieldset>
+            </RadzenTemplateForm>
         </RadzenStepsItem>
         <RadzenStepsItem Text="Train Your Model" Disabled="@_DisabledStep3">
             <RadzenText TextStyle="TextStyle.H5" TagName="TagName.H3" class="rz-my-6">2. Hello From Step 3</RadzenText>
@@ -50,11 +89,17 @@
         <RadzenStepsItem Text="Ask Questions" Disabled="@_DisabledStep4">
             <RadzenText TextStyle="TextStyle.H5" TagName="TagName.H3" class="rz-my-6">2. Hello From Step 4</RadzenText>
         </RadzenStepsItem>
+        
     </Steps>
 </RadzenSteps>
 
+
 @code {
     private Credentials _sqlServerCredentials;
+    private VannaModel _vannaModel;
+
+    private VannaUtilitiesService _vannaUtilitiesService;
+
     private string _infomsgs;
     private bool _DisabledStep2 = true;
     private bool _DisabledStep3 = true;
@@ -66,12 +111,13 @@
     {
         await base.OnInitializedAsync();
         _sqlServerCredentials = new Credentials();
+        _vannaModel = new VannaModel();
+        _vannaUtilitiesService = new VannaUtilitiesService();
     }
 
     void OnChangeStep(int index)
     {
-        //console.Log($"Step with index {index} was selected.");
-
+        this._infomsgs = String.Empty;
         if (index == 1)
         {
 
@@ -89,23 +135,23 @@
         this._infomsgs = "";
         try
         {
-            
+
             string error = "";
             bool connSuccess = SQLServerLib.CheckConnection(this._sqlServerCredentials.Server.Trim(),
                                                             this._sqlServerCredentials.Database.Trim(), out error);
             if (connSuccess)
             {
-                this._infomsgs = "Info: Connect to database Success!";
+                this._infomsgs = "Connect to database Success!";
                 this._DisabledStep2 = false;
             }
             else
             {
-                this._infomsgs = $"Info: Connect to database Failed. Error message: {error}";
+                this._infomsgs = $"Connect to database Failed. Error message: {error}";
             }
         }
         catch (Exception exc)
         {
-            this._infomsgs = $"Exception in OnSubmit. Exception message: {exc.Message}";
+            this._infomsgs = $"Exception in CheckConnection. Exception message: {exc.Message}";
         }
     }
 
@@ -115,4 +161,51 @@
     ///--------------------------------------------------------///
 
     //Step 2 Code
+    void CreateOrSetModel(VannaModel arg)
+    {
+        //Code Only For Windows Authentication
+        this._infomsgs = "";
+        try
+        {
+            StringBuilder urlBuilder = new StringBuilder();
+            urlBuilder.Append(configuration["ApplicationInfo:mainURL"].ToString());
+            urlBuilder.Append("/");
+            if (this._vannaModel.NewModel)
+            {
+                urlBuilder.Append(configuration["ApplicationInfo:createModelService"].ToString());
+                string error = "";
+                if (_vannaUtilitiesService.CheckIfVannaModelExistOrCreated(urlBuilder.ToString(), this._vannaModel.ModelName, out error))
+                {
+                    _infomsgs = $"The model {this._vannaModel.ModelName} Created. You can use it!";
+                    this._DisabledStep3 = false;
+                }
+                else
+                {
+                    this._DisabledStep3 = true;
+                    _infomsgs = $"Something went wrong. Error message: {error}. If the name exists try amother name."+
+                    "If you want to use an existing model deselect the Create Model option and try again!";
+                }
+            }
+            else
+            {
+                urlBuilder.Append(configuration["ApplicationInfo:checkIfModelExistService"].ToString());
+                string error = "";
+                if (_vannaUtilitiesService.CheckIfVannaModelExistOrCreated(urlBuilder.ToString(), this._vannaModel.ModelName, out error))
+                {
+                    _infomsgs = $"The model {this._vannaModel.ModelName} Exist. You can use it!";
+                    this._DisabledStep3 = false;
+                }
+                else
+                {
+                    this._DisabledStep3 = true;
+                    _infomsgs = $"Something went wrong. Error message: {error}";
+                }
+            }
+
+        }
+        catch (Exception exc)
+        {
+            this._infomsgs = $"Exception in CreateOrSetModel. Exception message: {exc.Message}";
+        }
+    }
 }

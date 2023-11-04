@@ -1,10 +1,10 @@
 ﻿using System.Data.SqlClient;
 
-namespace IntegrationBuilder.Pages.SQLServerUtilities
+namespace IntegrationBuilder.SQLServerUtilities
 {
     public static class SQLServerLib
     {
-        public static bool CheckConnection(string server,string db,out string error)
+        public static bool CheckConnection(string server, string db, out string error)
         {
             error = "";
             try
@@ -12,6 +12,7 @@ namespace IntegrationBuilder.Pages.SQLServerUtilities
                 SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder();
 
                 builder.DataSource = server;
+
                 builder.InitialCatalog = db;
                 //For Windows Authentication
                 builder.IntegratedSecurity = true;
@@ -23,13 +24,13 @@ namespace IntegrationBuilder.Pages.SQLServerUtilities
                     connection.Open();
                     connection.Close();
                 }
-            }
+}
             catch (SqlException e)
             {
-                error = $"Connect to database error. Error message: {e.ToString()}";
-                return false;
-            }
-            return true;
+    error = $"Connect to database error. Error message: {e.ToString()}";
+    return false;
+}
+return true;
         }
     }
 }

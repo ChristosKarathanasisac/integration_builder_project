@@ -1,4 +1,3 @@
-using IntegrationBuilder.Data;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Radzen;
@@ -9,7 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddRadzenComponents();
-builder.Services.AddSingleton<WeatherForecastService>();
+
 
 var app = builder.Build();
 

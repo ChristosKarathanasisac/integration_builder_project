@@ -1,4 +1,4 @@
-﻿namespace IntegrationBuilder.Pages.SQLServerUtilities
+﻿namespace IntegrationBuilder.SQLServerUtilities
 {
     public class Credentials
     {
