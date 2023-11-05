@@ -84,7 +84,27 @@
             </RadzenTemplateForm>
         </RadzenStepsItem>
         <RadzenStepsItem Text="Train Your Model" Disabled="@_DisabledStep3">
-            <RadzenText TextStyle="TextStyle.H5" TagName="TagName.H3" class="rz-my-6">2. Hello From Step 3</RadzenText>
+            <RadzenCard>
+                <div class="container-fluid">
+                    <div class="row my-5">
+                        <div class="col-md-4">
+                            <RadzenCard>
+                                <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3" class="mb-0">Train with Tables</RadzenText>
+                            </RadzenCard>
+                        </div>
+                        <div class="col-md-4">
+                            <RadzenCard>
+                                <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3" class="mb-0">Train with Views</RadzenText>
+                            </RadzenCard>
+                        </div>
+                        <div class="col-md-4">
+                            <RadzenCard>
+                                <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3" class="mb-0">Train With SQL</RadzenText>
+                            </RadzenCard>
+                        </div>
+                    </div>
+                </div>
+            </RadzenCard>
         </RadzenStepsItem>
         <RadzenStepsItem Text="Ask Questions" Disabled="@_DisabledStep4">
             <RadzenText TextStyle="TextStyle.H5" TagName="TagName.H3" class="rz-my-6">2. Hello From Step 4</RadzenText>
