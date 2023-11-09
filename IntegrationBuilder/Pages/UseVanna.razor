@@ -85,6 +85,10 @@
         </RadzenStepsItem>
         <RadzenStepsItem Text="Train Your Model" Disabled="@_DisabledStep3">
             <RadzenCard>
+                @if (true)
+                {
+                    GetAllInitialData();
+                }
                 <div class="container-fluid">
                     <div class="row my-5">
                         <div class="col-md-4">
@@ -126,6 +130,13 @@
     private bool _DisabledStep4 = true;
 
 
+    private List<string> _allTables;
+    private List<string> _selectedTables;
+
+    private List<string> _allViews;
+    private List<string> _selectedViews;
+
+
     //General Code
     protected override async Task OnInitializedAsync()
     {
@@ -133,9 +144,47 @@
         _sqlServerCredentials = new Credentials();
         _vannaModel = new VannaModel();
         _vannaUtilitiesService = new VannaUtilitiesService();
+
     }
 
-    void OnChangeStep(int index)
+    private void GetAllInitialData()
+    {
+        try
+        {
+            StringBuilder urlBuilder = new StringBuilder();
+            urlBuilder.Append(configuration["ApplicationInfo:mainURL"].ToString());
+            urlBuilder.Append("/");
+            urlBuilder.Append(configuration["ApplicationInfo:getAllTableNames"].ToString());
+            string error = "";
+
+            this._allTables = _vannaUtilitiesService.GetInfosFromDB(urlBuilder.ToString(), this._sqlServerCredentials, out error);
+            if (this._allTables == null)
+            {
+                this._infomsgs = $"GetInfosFromDB returns null. Error message: {error}";
+                return;
+            }
+
+            urlBuilder = new StringBuilder();
+            urlBuilder.Append(configuration["ApplicationInfo:mainURL"].ToString());
+            urlBuilder.Append("/");
+            urlBuilder.Append(configuration["ApplicationInfo:getAllViewNames"].ToString());
+
+            this._allViews = _vannaUtilitiesService.GetInfosFromDB(urlBuilder.ToString(), this._sqlServerCredentials, out error);
+            if (this._allViews == null)
+            {
+                this._infomsgs = $"GetInfosFromDB returns null. Error message: {error}";
+                return;
+            }
+          
+        }
+        catch (Exception exc)
+        {
+            this._infomsgs = $"Exception in GetAllInitialData. Exception message: {exc.Message}";
+            return;
+        }
+    }
+
+    private void OnChangeStep(int index)
     {
         this._infomsgs = String.Empty;
         if (index == 1)
@@ -149,7 +198,7 @@
     }
 
     //Step 1 Code
-    void CheckConnection(Credentials arg)
+    private void CheckConnection(Credentials arg)
     {
         //Code Only For Windows Authentication
         this._infomsgs = "";
@@ -181,7 +230,7 @@
     ///--------------------------------------------------------///
 
     //Step 2 Code
-    void CreateOrSetModel(VannaModel arg)
+    private void CreateOrSetModel(VannaModel arg)
     {
         //Code Only For Windows Authentication
         this._infomsgs = "";
