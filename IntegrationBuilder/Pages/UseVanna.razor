@@ -89,25 +89,76 @@
                 {
                     GetAllInitialData();
                 }
-                <div class="container-fluid">
-                    <div class="row my-5">
-                        <div class="col-md-4">
-                            <RadzenCard>
-                                <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3" class="mb-0">Train with Tables</RadzenText>
-                            </RadzenCard>
-                        </div>
-                        <div class="col-md-4">
-                            <RadzenCard>
-                                <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3" class="mb-0">Train with Views</RadzenText>
-                            </RadzenCard>
-                        </div>
-                        <div class="col-md-4">
-                            <RadzenCard>
-                                <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3" class="mb-0">Train With SQL</RadzenText>
-                            </RadzenCard>
+                @if ((this._allTables != null) && (_allViews != null))
+                {
+                    <div class="container-fluid">
+                        <div class="row my-5">
+                            <div class="col-md-4">
+                                <RadzenCard>
+                                    <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3" class="mb-0">Train with Tables</RadzenText>
+                                    <style>
+                                        .rz-grid-table {
+                                            width: unset;
+                                        }
+                                    </style>
+                                    <RadzenButton ButtonStyle="ButtonStyle.Success" Icon="add_circle_outline" class="mt-2 mb-4" Text="Add New Documentation"
+                                                  Click="@InsertRow" Disabled=@(this._ddlDocumentationToInsert != null || this._ddlDocumentationToUpdate != null) />
+
+
+                                    <RadzenDataGrid @ref="_tableDDLDocumentationsGrid" AllowAlternatingRows="false" AllowFiltering="true" AllowPaging="true"
+                                                    PageSize="5" AllowSorting="true" EditMode="DataGridEditMode.Single"
+                                                    Data="@_tableDDLDocumentations" TItem="DDLDocumentation" RowUpdate="@OnUpdateRowTables"
+                                                    RowCreate="@OnCreateRowTables" Sort="@ResetTableGenVars" Page="@ResetTableGenVars" Filter="@ResetTableGenVars" ColumnWidth="200px">
+                                        <Columns>
+                                            <RadzenDataGridColumn TItem="DDLDocumentation" Property="name" Title="Table Name">
+                                                @* <EditTemplate Context="tname">
+                                                    <RadzenDropDown @bind-Value=@tname.name Data=@this._allTables TextProperty="name" ValueProperty="name"
+                                                                    AllowClear=true Placeholder="Select Table" AllowFiltering="true" Chips="true">
+
+                                                    </RadzenDropDown>
+                                                </EditTemplate> *@
+                                            </RadzenDataGridColumn>
+                                            <RadzenDataGridColumn TItem="DDLDocumentation" Property="documentation" Title="documentation">
+                                                <Template Context="data">
+                                                    <RadzenTextBox @bind-Value="@data.documentation" Style="width: 100%;" />
+                                                </Template>
+                                            </RadzenDataGridColumn>
+
+
+                                            <RadzenDataGridColumn TItem="DDLDocumentation" Context="doc" Filterable="false" Sortable="false" TextAlign="TextAlign.Right" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
+                                                <Template Context="doc">
+                                                    <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => EditRowTables(doc))" @onclick:stopPropagation="true">
+                                                    </RadzenButton>
+                                                    <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Variant="Variant.Flat" Shade="Shade.Lighter" Size="ButtonSize.Medium" class="my-1 ms-1" Click="@(args => DeleteRowTables(doc))" @onclick:stopPropagation="true">
+                                                    </RadzenButton>
+                                                </Template>
+                                                <EditTemplate Context="doc">
+                                                    <RadzenButton Icon="check" ButtonStyle="ButtonStyle.Success" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@((args) => SaveRowTables(doc))">
+                                                    </RadzenButton>
+                                                    <RadzenButton Icon="close" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" class="my-1 ms-1" Click="@((args) => CancelEditTables(doc))">
+                                                    </RadzenButton>
+                                                    <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Variant="Variant.Flat" Shade="Shade.Lighter" Size="ButtonSize.Medium" class="my-1 ms-1" Click="@(args => DeleteRowTables(doc))">
+                                                    </RadzenButton>
+                                                </EditTemplate>
+                                            </RadzenDataGridColumn>
+                                        </Columns>
+                                    </RadzenDataGrid>
+                                </RadzenCard>
+                            </div>
+                            <div class="col-md-4">
+                                <RadzenCard>
+                                    <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3" class="mb-0">Train with Views</RadzenText>
+                                </RadzenCard>
+                            </div>
+                            <div class="col-md-4">
+                                <RadzenCard>
+                                    <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3" class="mb-0">Train With SQL</RadzenText>
+                                </RadzenCard>
+                            </div>
                         </div>
                     </div>
-                </div>
+                }
+                
             </RadzenCard>
         </RadzenStepsItem>
         <RadzenStepsItem Text="Ask Questions" Disabled="@_DisabledStep4">
@@ -119,6 +170,12 @@
 
 
 @code {
+
+    RadzenDataGrid<DDLDocumentation> _tableDDLDocumentationsGrid;
+    DDLDocumentation _ddlDocumentationToInsert;
+    DDLDocumentation _ddlDocumentationToUpdate;
+
+
     private Credentials _sqlServerCredentials;
     private VannaModel _vannaModel;
 
@@ -136,6 +193,7 @@
     private List<string> _allViews;
     private List<string> _selectedViews;
 
+    private List<DDLDocumentation> _tableDDLDocumentations;
 
     //General Code
     protected override async Task OnInitializedAsync()
@@ -144,6 +202,12 @@
         _sqlServerCredentials = new Credentials();
         _vannaModel = new VannaModel();
         _vannaUtilitiesService = new VannaUtilitiesService();
+        _tableDDLDocumentations = new List<DDLDocumentation>();
+        DDLDocumentation  d = new DDLDocumentation();
+        d.name = "MTRL";
+        d.documentation = "Test documentation";
+        this._tableDDLDocumentations.Add(d);
+
 
     }
 
@@ -163,6 +227,8 @@
                 this._infomsgs = $"GetInfosFromDB returns null. Error message: {error}";
                 return;
             }
+            _tableDDLDocumentations = new List<DDLDocumentation>();
+
 
             urlBuilder = new StringBuilder();
             urlBuilder.Append(configuration["ApplicationInfo:mainURL"].ToString());
@@ -175,7 +241,7 @@
                 this._infomsgs = $"GetInfosFromDB returns null. Error message: {error}";
                 return;
             }
-          
+
         }
         catch (Exception exc)
         {
@@ -276,5 +342,69 @@
         {
             this._infomsgs = $"Exception in CreateOrSetModel. Exception message: {exc.Message}";
         }
+    }
+
+    //Step 3
+    //Tables Grid Handling
+    void ResetTableGenVars()
+    {
+        _ddlDocumentationToInsert = null;
+        _ddlDocumentationToUpdate = null;
+    }
+
+    async Task EditRowTables(DDLDocumentation tdoc)
+    {
+        this._ddlDocumentationToUpdate = tdoc;
+        await this._tableDDLDocumentationsGrid.EditRow(tdoc);
+    }
+
+    void OnUpdateRowTables(DDLDocumentation tdoc)
+    {
+        ResetTableGenVars();
+    }
+
+    async Task SaveRowTables(DDLDocumentation tdoc)
+    {
+        await this._tableDDLDocumentationsGrid.UpdateRow(tdoc);
+    }
+
+    void CancelEditTables(DDLDocumentation tdoc)
+    {
+        ResetTableGenVars();
+
+        this._tableDDLDocumentationsGrid.CancelEditRow(tdoc);
+
+    }
+
+
+    async Task DeleteRowTables(DDLDocumentation tdoc)
+    {
+        ResetTableGenVars();
+
+        // if (this._tableDDLDocumentationsGrid.Contains(tdoc))
+        // {
+        //     dbContext.Remove<Order>(order);
+
+        //     dbContext.SaveChanges();
+
+        //     await ordersGrid.Reload();
+        // }
+        // else
+        // {
+        //     ordersGrid.CancelEditRow(order);
+        //     await ordersGrid.Reload();
+        // }
+    }
+
+    async Task InsertRow()
+    {
+        this._ddlDocumentationToInsert = new DDLDocumentation();
+        await this._tableDDLDocumentationsGrid.InsertRow(this._ddlDocumentationToInsert);
+    }
+
+    void OnCreateRowTables(DDLDocumentation tdoc)
+    {
+        this._ddlDocumentationToInsert = tdoc;
+        this._tableDDLDocumentations.Add(this._ddlDocumentationToInsert);
     }
 }
