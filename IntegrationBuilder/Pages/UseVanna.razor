@@ -85,10 +85,6 @@
         </RadzenStepsItem>
         <RadzenStepsItem Text="Train Your Model" Disabled="@_DisabledStep3">
             <RadzenCard>
-                @if (true)
-                {
-                    GetAllInitialData();
-                }
                 @if ((this._allTables != null) && (_allViews != null))
                 {
                     <RadzenTabs Change=@OnChangeTab TabPosition="@tabPosition" RenderMode="TabRenderMode.Client" >
@@ -103,24 +99,28 @@
 
 
                         <RadzenDataGrid @ref="_tableDDLDocumentationsGrid" AllowAlternatingRows="false" AllowFiltering="true" AllowPaging="true"
-                                        PageSize="5" AllowSorting="true" EditMode="DataGridEditMode.Single"
+                                                    PageSize="5" AllowSorting="true" EditMode="DataGridEditMode.Single" FilterMode="FilterMode.Advanced"
+                                                    FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                                         Data="@_tableDDLDocumentations" TItem="DDLDocumentation" RowUpdate="@OnUpdateRowTables"
-                                        RowCreate="@OnCreateRowTables" Sort="@ResetTableGenVars" Page="@ResetTableGenVars" Filter="@ResetTableGenVars" ColumnWidth="200px"
+                                        RowCreate="@OnCreateRowTables" Sort="@ResetTableGenVars" Page="@ResetTableGenVars" Filter="@ResetTableGenVars" 
+                                                    
                                         class="rz-background-color-base-900 rz-color-on-info-lighter rz-p-2">
 
                             <Columns>
                                 <RadzenDataGridColumn TItem="DDLDocumentation" Property="name" Title="Table Name" Width="20%">
                                 
                                     <EditTemplate Context="tname">
-                                        <RadzenDropDown @bind-Value=@tname.name Data=@this._allTables TextProperty="name" ValueProperty="name"
-                                                        AllowClear=true Placeholder="Select Table" AllowFiltering="true" Chips="true">
+                                                    <RadzenDropDownDataGrid @bind-Value=@tname.name Data=@this._allTables 
+                                                                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                        AllowClear=true Placeholder="Select Table" AllowFiltering="true" Chips="true" PageSize="4" ShowPagingSummary="true"
+                                                                            class="rz-background-color-base-200 rz-color-on-info-lighter">
 
-                                        </RadzenDropDown>
+                                        </RadzenDropDownDataGrid>
                                     </EditTemplate>
                                 </RadzenDataGridColumn>
                                 <RadzenDataGridColumn TItem="DDLDocumentation" Property="documentation" Title="documentation" Width="60%">
                                     <Template Context="data">
-                                        <RadzenTextBox @bind-Value="@data.documentation" Style="width: 100%;" />
+                                        <RadzenTextArea @bind-Value="@data.documentation" Style="width: 100%;" />
                                     </Template>
                                 </RadzenDataGridColumn>
 
@@ -205,11 +205,6 @@
         _vannaUtilitiesService = new VannaUtilitiesService();
         _tableDDLDocumentations = new List<DDLDocumentation>();
 
-        DDLDocumentation  d = new DDLDocumentation();
-        d.name = "MTRL";
-        d.documentation = "Test documentation";
-        this._tableDDLDocumentations.Add(d);
-
     }
 
     void OnChangeTab(int index)
@@ -217,7 +212,7 @@
         //console.Log($"Tab with index {index} was selected.");
     }
 
-    private void GetAllInitialData()
+    private bool GetAllInitialDataForStep3()
     {
         try
         {
@@ -231,9 +226,9 @@
             if (this._allTables == null)
             {
                 this._infomsgs = $"GetInfosFromDB returns null. Error message: {error}";
-                return;
+                return false;
             }
-            
+
 
 
             urlBuilder = new StringBuilder();
@@ -245,14 +240,17 @@
             if (this._allViews == null)
             {
                 this._infomsgs = $"GetInfosFromDB returns null. Error message: {error}";
-                return;
+                return false;
             }
+
+            DDLDocumentation d = new DDLDocumentation();
+            return true;
 
         }
         catch (Exception exc)
         {
             this._infomsgs = $"Exception in GetAllInitialData. Exception message: {exc.Message}";
-            return;
+            return false;
         }
     }
 
@@ -284,6 +282,7 @@
             {
                 this._infomsgs = "Connect to database Success!";
                 this._DisabledStep2 = false;
+
             }
             else
             {
@@ -319,6 +318,10 @@
                 {
                     _infomsgs = $"The model {this._vannaModel.ModelName} Created. You can use it!";
                     this._DisabledStep3 = false;
+                    if (GetAllInitialDataForStep3())
+                    {
+                        _infomsgs += "\n"+"Initial data for Step 3 are set";
+                    }
                 }
                 else
                 {
@@ -334,7 +337,12 @@
                 if (_vannaUtilitiesService.CheckIfVannaModelExistOrCreated(urlBuilder.ToString(), this._vannaModel.ModelName, out error))
                 {
                     _infomsgs = $"The model {this._vannaModel.ModelName} Exist. You can use it!";
-                    this._DisabledStep3 = false;
+                    if (GetAllInitialDataForStep3())
+                    {
+                        _infomsgs += "\n" + "Initial data for Step 3 are set";
+                        this._DisabledStep3 = false;
+                    }
+
                 }
                 else
                 {
@@ -371,6 +379,14 @@
 
     async Task SaveRowTables(DDLDocumentation tdoc)
     {
+        if (string.IsNullOrEmpty(tdoc.name))
+        {
+            return;
+        }
+        if (string.IsNullOrEmpty(tdoc.documentation))
+        {
+            return;
+        }
         await this._tableDDLDocumentationsGrid.UpdateRow(tdoc);
     }
 
@@ -387,19 +403,17 @@
     {
         ResetTableGenVars();
 
-        // if (this._tableDDLDocumentationsGrid.Contains(tdoc))
-        // {
-        //     dbContext.Remove<Order>(order);
+        if (this._tableDDLDocumentations.Contains(tdoc))
+        {
+            this._tableDDLDocumentations.Remove(tdoc);
 
-        //     dbContext.SaveChanges();
-
-        //     await ordersGrid.Reload();
-        // }
-        // else
-        // {
-        //     ordersGrid.CancelEditRow(order);
-        //     await ordersGrid.Reload();
-        // }
+            await this._tableDDLDocumentationsGrid.Reload();
+        }
+        else
+        {
+            this._tableDDLDocumentationsGrid.CancelEditRow(tdoc);
+            await this._tableDDLDocumentationsGrid.Reload();
+        }
     }
 
     async Task InsertRowTable()
@@ -412,5 +426,6 @@
     {
         this._ddlDocumentationToInsert = tdoc;
         this._tableDDLDocumentations.Add(this._ddlDocumentationToInsert);
+        ResetTableGenVars();
     }
 }
