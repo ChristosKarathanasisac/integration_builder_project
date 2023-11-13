@@ -94,8 +94,12 @@
                         
                         <RadzenText TextStyle="TextStyle.DisplayH6" TagName="TagName.H6" class="mb-0">Train with Tables</RadzenText>
 
+                                    <RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="build" class="mt-2 mb-4" Text="Train Model"
+                                                  Click="@BtnTrainWithTables" Disabled=@((this._tableDDLDocumentations == null) || (this._tableDDLDocumentations.Count<1)) />
+
                         <RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="add_circle_outline" class="mt-2 mb-4" Text="Add Table Documentation"
                                       Click="@InsertRowTable" Disabled=@(this._ddlDocumentationToInsert != null || this._ddlDocumentationToUpdate != null) />
+                                    
 
 
                         <RadzenDataGrid @ref="_tableDDLDocumentationsGrid" AllowAlternatingRows="false" AllowFiltering="true" AllowPaging="true"
@@ -120,7 +124,7 @@
                                 </RadzenDataGridColumn>
                                 <RadzenDataGridColumn TItem="DDLDocumentation" Property="documentation" Title="documentation" Width="60%">
                                     <Template Context="data">
-                                        <RadzenTextArea @bind-Value="@data.documentation" Style="width: 100%;" />
+                                        <RadzenTextArea ReadOnly="@((this._ddlDocumentationToUpdate == null) && (this._ddlDocumentationToInsert == null))"@bind-Value="@data.documentation" Style="width: 100%;" />
                                     </Template>
                                 </RadzenDataGridColumn>
 
@@ -228,9 +232,6 @@
                 this._infomsgs = $"GetInfosFromDB returns null. Error message: {error}";
                 return false;
             }
-
-
-
             urlBuilder = new StringBuilder();
             urlBuilder.Append(configuration["ApplicationInfo:mainURL"].ToString());
             urlBuilder.Append("/");
@@ -368,12 +369,13 @@
 
     async Task EditRowTables(DDLDocumentation tdoc)
     {
-        //this._ddlDocumentationToUpdate = tdoc;
-        await this._tableDDLDocumentationsGrid.EditRow(tdoc);
+        this._ddlDocumentationToUpdate = tdoc;
+        await this._tableDDLDocumentationsGrid.EditRow(this._ddlDocumentationToUpdate);
     }
 
     void OnUpdateRowTables(DDLDocumentation tdoc)
     {
+        this._ddlDocumentationToUpdate = tdoc;
         ResetTableGenVars();
     }
 
@@ -381,10 +383,12 @@
     {
         if (string.IsNullOrEmpty(tdoc.name))
         {
+            this._infomsgs = "Select Table to insert row!";
             return;
         }
         if (string.IsNullOrEmpty(tdoc.documentation))
         {
+            this._infomsgs = "Add documentation to insert row!";
             return;
         }
         await this._tableDDLDocumentationsGrid.UpdateRow(tdoc);
@@ -413,6 +417,46 @@
         {
             this._tableDDLDocumentationsGrid.CancelEditRow(tdoc);
             await this._tableDDLDocumentationsGrid.Reload();
+        }
+    }
+
+    async Task BtnTrainWithTables()
+    {
+        try
+        {
+            if (this._tableDDLDocumentations == null)
+            {
+                this._infomsgs = "_tableDDLDocumentations is null";
+                return;
+            }
+
+            List<string> tableNames = new List<string>();
+            foreach (DDLDocumentation d in this._tableDDLDocumentations)
+            {
+                tableNames.Add(d.name);
+            }
+
+
+
+            StringBuilder urlBuilder = new StringBuilder();
+            urlBuilder.Append(configuration["ApplicationInfo:mainURL"].ToString());
+            urlBuilder.Append("/");
+            urlBuilder.Append(configuration["ApplicationInfo:trainWithTables"].ToString());
+            string errorMsg = "";
+
+            if (this._vannaUtilitiesService.TrainModelWithTables(urlBuilder.ToString(), tableNames, this._vannaModel.ModelName, this._sqlServerCredentials, out errorMsg))
+            {
+                this._infomsgs = "Train with tables OK";
+            }
+            else
+            {
+                this._infomsgs = $"Something went wrong in Train with tables. Message: {errorMsg}";
+            }
+        }
+        catch (Exception exc)
+        {
+            this._infomsgs = $"Exception in BtnTrainWithTables. Exception message: {exc.Message}";
+            return;
         }
     }
 

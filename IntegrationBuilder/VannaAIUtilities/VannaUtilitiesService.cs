@@ -11,8 +11,7 @@ namespace IntegrationBuilder.VannaAIUtilities
         {
             //Just For Test
             error = "";
-           
-           
+     
             try
             {
                 RequestVannaModel req = new RequestVannaModel();
@@ -28,7 +27,7 @@ namespace IntegrationBuilder.VannaAIUtilities
                 string sentRequetsError = "";
                 if (!GeneralUtilities.GeneralUtilities.SendRequest(jsonData, url, out sentRequetsError, out sresult))
                 {
-                    error = "Error in CheckIfVannaModelExistOrCreated (SendRequest). Exception message: " + sentRequetsError;
+                    error = "Error in CheckIfVannaModelExistOrCreated (SendRequest). Error message: " + sentRequetsError;
                     return false;
                 }
                 ResponseVannaModel oResponse = new ResponseVannaModel();
@@ -81,7 +80,7 @@ namespace IntegrationBuilder.VannaAIUtilities
 
                 if (oResponse.success == true)
                 {
-                    return oResponse.data;
+                    return (List<string>) oResponse.data;
                 }
                 else
                 {
@@ -94,6 +93,39 @@ namespace IntegrationBuilder.VannaAIUtilities
             {
                 error = "Exception in GetAllTablesNames. Exception message: " + exc.Message;
                 return null;
+            }
+        }
+
+        public bool TrainModelWithTables(string url, List<string> tables, string modelName, Credentials credentials, out string error) 
+        {
+            try 
+            {
+                error = "";
+                RequestTrainWithTables req = new RequestTrainWithTables();
+                req.model = modelName;
+                req.server = credentials.Server;
+                req.db = credentials.Database;
+                req.desired_table_names = tables;
+
+                string jsonData = JsonConvert.SerializeObject(req, new JsonSerializerSettings
+                {
+                    NullValueHandling = NullValueHandling.Ignore
+                });
+
+
+                string sresult = "";
+                string sentRequetsError = "";
+                if (!GeneralUtilities.GeneralUtilities.SendRequest(jsonData, url, out sentRequetsError, out sresult))
+                {
+                    error = "Error in TrainModelWithTables (SendRequest). Error message: " + sentRequetsError;
+                    return false;
+                }
+                return true;
+            }
+            catch (Exception exc) 
+            {
+                error = $"Exception in TrainModelWithTables. Exception message:{exc.Message}";
+                return false;
             }
         }
     }

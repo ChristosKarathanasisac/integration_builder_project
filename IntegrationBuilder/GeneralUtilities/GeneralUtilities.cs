@@ -11,8 +11,8 @@ namespace IntegrationBuilder.GeneralUtilities
             HttpWebRequest httpWebRequest = (HttpWebRequest)WebRequest.Create(sUrl);
             httpWebRequest.ContentType = "application/json";
             httpWebRequest.Method = "POST";
-            httpWebRequest.Timeout = 10000;
-            httpWebRequest.ReadWriteTimeout = 10000;
+            httpWebRequest.Timeout = 180000; //--> 3 min
+            httpWebRequest.ReadWriteTimeout = 180000; //--> 3 min
 
             HttpWebResponse httpResponse;
 
