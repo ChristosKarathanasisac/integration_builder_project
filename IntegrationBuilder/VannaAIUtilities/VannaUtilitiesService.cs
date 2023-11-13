@@ -1,7 +1,10 @@
 ﻿using IntegrationBuilder.SQLServerUtilities;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Mvc.ViewEngines;
 using Newtonsoft.Json;
+using System.Net;
 using System.Text;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace IntegrationBuilder.VannaAIUtilities
 {
@@ -125,6 +128,70 @@ namespace IntegrationBuilder.VannaAIUtilities
             catch (Exception exc) 
             {
                 error = $"Exception in TrainModelWithTables. Exception message:{exc.Message}";
+                return false;
+            }
+        }
+
+        public bool TrainModelWithViews(string url, List<string> views, string modelName, Credentials credentials, out string error)
+        {
+            try
+            {
+                error = "";
+                RequestTrainWithViews req = new RequestTrainWithViews();
+                req.model = modelName;
+                req.server = credentials.Server;
+                req.db = credentials.Database;
+                req.desired_view_names = views;
+
+                string jsonData = JsonConvert.SerializeObject(req, new JsonSerializerSettings
+                {
+                    NullValueHandling = NullValueHandling.Ignore
+                });
+
+
+                string sresult = "";
+                string sentRequetsError = "";
+                if (!GeneralUtilities.GeneralUtilities.SendRequest(jsonData, url, out sentRequetsError, out sresult))
+                {
+                    error = "Error in TrainModelWithViews (SendRequest). Error message: " + sentRequetsError;
+                    return false;
+                }
+                return true;
+            }
+            catch (Exception exc)
+            {
+                error = $"Exception in TrainModelWithViews. Exception message:{exc.Message}";
+                return false;
+            }
+        }
+
+        public bool TrainWithDocumentation(string url, string statements, string modelName, out string error) 
+        {
+            try
+            {
+                error = "";
+                RequestTrainWithDocumentation req = new RequestTrainWithDocumentation();
+                req.model = modelName;
+                req.statement = statements;
+
+                string jsonData = JsonConvert.SerializeObject(req, new JsonSerializerSettings
+                {
+                    NullValueHandling = NullValueHandling.Ignore
+                });
+
+
+                string sresult = "";
+                string sentRequetsError = "";
+                if (!GeneralUtilities.GeneralUtilities.SendRequest(jsonData, url, out sentRequetsError, out sresult))
+                {
+                    error = "Error in TrainWithDocumentation (SendRequest). Error message: " + sentRequetsError;
+                    return false;
+                }
+                return true;
+            }
+            catch (Exception exc)
+            {
+                error = $"Exception in TrainWithDocumentation. Exception message:{exc.Message}";
                 return false;
             }
         }

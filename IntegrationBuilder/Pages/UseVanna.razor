@@ -98,9 +98,8 @@
                                                   Click="@BtnTrainWithTables" Disabled=@((this._tableDDLDocumentations == null) || (this._tableDDLDocumentations.Count<1)) />
 
                         <RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="add_circle_outline" class="mt-2 mb-4" Text="Add Table Documentation"
-                                      Click="@InsertRowTable" Disabled=@(this._ddlDocumentationToInsert != null || this._ddlDocumentationToUpdate != null) />
+                                      Click="@InsertRowTable" Disabled=@(this._tableDocumentationToInsert != null || this._tableDocumentationToUpdate != null) />
                                     
-
 
                         <RadzenDataGrid @ref="_tableDDLDocumentationsGrid" AllowAlternatingRows="false" AllowFiltering="true" AllowPaging="true"
                                                     PageSize="5" AllowSorting="true" EditMode="DataGridEditMode.Single" FilterMode="FilterMode.Advanced"
@@ -124,7 +123,7 @@
                                 </RadzenDataGridColumn>
                                 <RadzenDataGridColumn TItem="DDLDocumentation" Property="documentation" Title="documentation" Width="60%">
                                     <Template Context="data">
-                                        <RadzenTextArea ReadOnly="@((this._ddlDocumentationToUpdate == null) && (this._ddlDocumentationToInsert == null))"@bind-Value="@data.documentation" Style="width: 100%;" />
+                                        <RadzenTextArea ReadOnly="@((this._tableDocumentationToUpdate == null) && (this._tableDocumentationToInsert == null))"@bind-Value="@data.documentation" Style="width: 100%;" />
                                     </Template>
                                 </RadzenDataGridColumn>
 
@@ -150,8 +149,59 @@
                     </RadzenCard>
                             </RadzenTabsItem>
                     <RadzenTabsItem Text="Train With Views">
+                                <RadzenText TextStyle="TextStyle.DisplayH6" TagName="TagName.H6" class="mb-0">Train With Views</RadzenText>
+
+                                <RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="build" class="mt-2 mb-4" Text="Train Model"
+                                              Click="@BtnTrainWithViews" Disabled=@((this._viewDDLDocumentations == null) || (this._viewDDLDocumentations.Count<1)) />
+
+                                <RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="add_circle_outline" class="mt-2 mb-4" Text="Add View Documentation"
+                                              Click="@InsertRowView" Disabled=@(this._viewDocumentationToInsert != null || this._viewDocumentationToUpdate != null) />
+
+
+                                <RadzenDataGrid @ref="_viewDDLDocumentationsGrid" AllowAlternatingRows="false" AllowFiltering="true" AllowPaging="true"
+                                                PageSize="5" AllowSorting="true" EditMode="DataGridEditMode.Single" FilterMode="FilterMode.Advanced"
+                                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                Data="@_viewDDLDocumentations" TItem="DDLDocumentation" RowUpdate="@OnUpdateRowViews"
+                                                RowCreate="@OnCreateRowViews" Sort="@ResetViewGenVars" Page="@ResetViewGenVars" Filter="@ResetViewGenVars"
+                                                class="rz-background-color-base-900 rz-color-on-info-lighter rz-p-2">
+
+                                    <Columns>
+                                        <RadzenDataGridColumn TItem="DDLDocumentation" Property="name" Title="Table Name" Width="20%">
+
+                                            <EditTemplate Context="tname">
+                                                <RadzenDropDownDataGrid @bind-Value=@tname.name Data=@this._allViews
+                                                                        FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                                        AllowClear=true Placeholder="Select View" AllowFiltering="true" Chips="true" PageSize="4" ShowPagingSummary="true"
+                                                                        class="rz-background-color-base-200 rz-color-on-info-lighter">
+
+                                                </RadzenDropDownDataGrid>
+                                            </EditTemplate>
+                                        </RadzenDataGridColumn>
+                                        <RadzenDataGridColumn TItem="DDLDocumentation" Property="documentation" Title="documentation" Width="60%">
+                                            <Template Context="data">
+                                                <RadzenTextArea ReadOnly="@((this._viewDocumentationToUpdate == null) && (this._viewDocumentationToInsert  == null))" @bind-Value="@data.documentation" Style="width: 100%;" />
+                                            </Template>
+                                        </RadzenDataGridColumn>
+
+                                        <RadzenDataGridColumn TItem="DDLDocumentation" Context="doc" Filterable="false" Sortable="false" TextAlign="TextAlign.Right" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
+                                            <Template Context="doc">
+                                                <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@(args => EditRowViews(doc))" @onclick:stopPropagation="true">
+                                                </RadzenButton>
+                                                <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Variant="Variant.Flat" Shade="Shade.Lighter" Size="ButtonSize.Medium" class="my-1 ms-1" Click="@(args => DeleteRowViews(doc))" @onclick:stopPropagation="true">
+                                                </RadzenButton>
+                                            </Template>
+                                            <EditTemplate Context="doc">
+                                                <RadzenButton Icon="check" ButtonStyle="ButtonStyle.Success" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@((args) => SaveRowViews(doc))">
+                                                </RadzenButton>
+                                                <RadzenButton Icon="close" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" class="my-1 ms-1" Click="@((args) => CancelEditViews(doc))">
+                                                </RadzenButton>
+                                                <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Variant="Variant.Flat" Shade="Shade.Lighter" Size="ButtonSize.Medium" class="my-1 ms-1" Click="@(args => DeleteRowViews(doc))">
+                                                </RadzenButton>
+                                            </EditTemplate>
+                                        </RadzenDataGridColumn>
+                                    </Columns>
+                                </RadzenDataGrid>
                             <RadzenCard>
-                        <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3" class="mb-0">Train with Views</RadzenText>
                     </RadzenCard>
                             </RadzenTabsItem>
                     <RadzenTabsItem Text="Train With SQL">
@@ -162,7 +212,14 @@
                         </Tabs>
                     </RadzenTabs>
                 }
-                
+                <RadzenRow Gap="2rem" JustifyContent="JustifyContent.Center">
+                    <RadzenColumn Size="12" SizeMD="6">
+                        <RadzenCard>
+                            <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Info Log</RadzenText>
+                            <RadzenTextArea Disabled="true" @bind-Value=@_infomsgs class="w-100" />
+                        </RadzenCard>
+                    </RadzenColumn>
+                </RadzenRow>
             </RadzenCard>
         </RadzenStepsItem>
         <RadzenStepsItem Text="Ask Questions" Disabled="@_DisabledStep4">
@@ -176,8 +233,16 @@
 @code {
 
     RadzenDataGrid<DDLDocumentation> _tableDDLDocumentationsGrid;
-    DDLDocumentation _ddlDocumentationToInsert;
-    DDLDocumentation _ddlDocumentationToUpdate;
+    RadzenDataGrid<DDLDocumentation> _viewDDLDocumentationsGrid;
+
+    DDLDocumentation _tableDocumentationToInsert;
+    DDLDocumentation _tableDocumentationToUpdate;
+    DDLDocumentation _tableDocumentationSafe;
+
+    DDLDocumentation _viewDocumentationToInsert;
+    DDLDocumentation _viewDocumentationToUpdate;
+    DDLDocumentation _viewDocumentationSafe;
+
 
     TabPosition tabPosition = TabPosition.Top;
 
@@ -193,12 +258,13 @@
 
 
     private List<string> _allTables;
-    private List<string> _selectedTables;
+    //private List<string> _selectedTables;
 
     private List<string> _allViews;
-    private List<string> _selectedViews;
+    //private List<string> _selectedViews;
 
     private List<DDLDocumentation> _tableDDLDocumentations;
+    private List<DDLDocumentation> _viewDDLDocumentations;
 
     //General Code
     protected override async Task OnInitializedAsync()
@@ -208,6 +274,7 @@
         _vannaModel = new VannaModel();
         _vannaUtilitiesService = new VannaUtilitiesService();
         _tableDDLDocumentations = new List<DDLDocumentation>();
+        _viewDDLDocumentations = new List<DDLDocumentation>();
 
     }
 
@@ -363,20 +430,51 @@
     //Tables Grid Handling
     void ResetTableGenVars()
     {
-        _ddlDocumentationToInsert = null;
-        _ddlDocumentationToUpdate = null;
+        _tableDocumentationToInsert = null;
+        _tableDocumentationToUpdate = null;
+    }
+
+    void ResetViewGenVars()
+    {
+        _viewDocumentationToInsert = null;
+        _viewDocumentationToUpdate = null;
     }
 
     async Task EditRowTables(DDLDocumentation tdoc)
     {
-        this._ddlDocumentationToUpdate = tdoc;
-        await this._tableDDLDocumentationsGrid.EditRow(this._ddlDocumentationToUpdate);
+
+        this._tableDocumentationSafe = new DDLDocumentation();
+        _tableDocumentationSafe.documentation = tdoc.documentation;
+        _tableDocumentationSafe.name = tdoc.name;
+
+        this._tableDocumentationToUpdate = tdoc;
+        await this._tableDDLDocumentationsGrid.EditRow(this._tableDocumentationToUpdate);
+        //ResetTableGenVars();
+    }
+
+    async Task EditRowViews(DDLDocumentation tdoc)
+    {
+        this._viewDocumentationSafe = new DDLDocumentation();
+        _viewDocumentationSafe.documentation = tdoc.documentation;
+        _viewDocumentationSafe.name = tdoc.name;
+
+        this._viewDocumentationToUpdate = tdoc;
+        await this._viewDDLDocumentationsGrid.EditRow(this._viewDocumentationToUpdate);
+        //ResetViewGenVars();
     }
 
     void OnUpdateRowTables(DDLDocumentation tdoc)
     {
-        this._ddlDocumentationToUpdate = tdoc;
+        this._tableDocumentationToUpdate = tdoc;
+        this._tableDDLDocumentationsGrid.Reload();
         ResetTableGenVars();
+
+    }
+    void OnUpdateRowViews(DDLDocumentation tdoc)
+    {
+        this._viewDocumentationToUpdate = tdoc;
+        this._viewDDLDocumentationsGrid.Reload();
+        ResetViewGenVars();
     }
 
     async Task SaveRowTables(DDLDocumentation tdoc)
@@ -394,15 +492,59 @@
         await this._tableDDLDocumentationsGrid.UpdateRow(tdoc);
     }
 
+    async Task SaveRowViews(DDLDocumentation tdoc)
+    {
+        if (string.IsNullOrEmpty(tdoc.name))
+        {
+            this._infomsgs = "Select View to insert row!";
+            return;
+        }
+        if (string.IsNullOrEmpty(tdoc.documentation))
+        {
+            this._infomsgs = "Add documentation to insert row!";
+            return;
+        }
+        await this._viewDDLDocumentationsGrid.UpdateRow(tdoc);
+    }
+
     void CancelEditTables(DDLDocumentation tdoc)
     {
-        ResetTableGenVars();
-
-        this._tableDDLDocumentationsGrid.CancelEditRow(tdoc);
+        if (this._tableDDLDocumentations.Any(i => i.name.Equals(tdoc.name) && i.documentation.Equals(tdoc.documentation)))
+        {
+            int index = this._tableDDLDocumentations.FindIndex(i => i.name.Equals(tdoc.name) && i.documentation.Equals(tdoc.documentation));
+            if (index != -1)
+                this._tableDDLDocumentations[index] = this._tableDocumentationSafe;
+            ResetTableGenVars();
+            this._tableDDLDocumentationsGrid.CancelEditRow(tdoc);
+            this._tableDDLDocumentationsGrid.Reload();
+        }
+        else
+        {
+            ResetTableGenVars();
+            this._tableDDLDocumentationsGrid.CancelEditRow(tdoc);
+            this._tableDDLDocumentationsGrid.Reload();
+        }
 
     }
 
-
+    void CancelEditViews(DDLDocumentation tdoc)
+    {
+        if (this._viewDDLDocumentations.Any(i => i.name.Equals(tdoc.name) && i.documentation.Equals(tdoc.documentation)))
+        {
+            int index = this._viewDDLDocumentations.FindIndex(i => i.name.Equals(tdoc.name) && i.documentation.Equals(tdoc.documentation));
+            if (index != -1)
+                this._viewDDLDocumentations[index] = this._viewDocumentationSafe;
+            ResetViewGenVars();
+            this._viewDDLDocumentationsGrid.CancelEditRow(tdoc);
+            this._viewDDLDocumentationsGrid.Reload();
+        }
+        else
+        {
+            ResetViewGenVars();
+            this._viewDDLDocumentationsGrid.CancelEditRow(tdoc);
+            this._viewDDLDocumentationsGrid.Reload();
+        }
+    }
     async Task DeleteRowTables(DDLDocumentation tdoc)
     {
         ResetTableGenVars();
@@ -420,10 +562,28 @@
         }
     }
 
+    async Task DeleteRowViews(DDLDocumentation tdoc)
+    {
+        ResetViewGenVars();
+
+        if (this._viewDDLDocumentations.Contains(tdoc))
+        {
+            this._viewDDLDocumentations.Remove(tdoc);
+
+            await this._viewDDLDocumentationsGrid.Reload();
+        }
+        else
+        {
+            this._viewDDLDocumentationsGrid.CancelEditRow(tdoc);
+            await this._viewDDLDocumentationsGrid.Reload();
+        }
+    }
+
     async Task BtnTrainWithTables()
     {
         try
         {
+            this._infomsgs = "";
             if (this._tableDDLDocumentations == null)
             {
                 this._infomsgs = "_tableDDLDocumentations is null";
@@ -431,12 +591,12 @@
             }
 
             List<string> tableNames = new List<string>();
+            List<string> documentation = new List<string>();
             foreach (DDLDocumentation d in this._tableDDLDocumentations)
             {
                 tableNames.Add(d.name);
+                documentation.Add(d.documentation);
             }
-
-
 
             StringBuilder urlBuilder = new StringBuilder();
             urlBuilder.Append(configuration["ApplicationInfo:mainURL"].ToString());
@@ -444,14 +604,18 @@
             urlBuilder.Append(configuration["ApplicationInfo:trainWithTables"].ToString());
             string errorMsg = "";
 
-            if (this._vannaUtilitiesService.TrainModelWithTables(urlBuilder.ToString(), tableNames, this._vannaModel.ModelName, this._sqlServerCredentials, out errorMsg))
+            if (this._vannaUtilitiesService.TrainModelWithTables(urlBuilder.ToString(), tableNames.Distinct().ToList(), this._vannaModel.ModelName, this._sqlServerCredentials, out errorMsg))
             {
-                this._infomsgs = "Train with tables OK";
+                this._infomsgs = "Train with tables OK. Now will start the training with Documentation!";
             }
             else
             {
                 this._infomsgs = $"Something went wrong in Train with tables. Message: {errorMsg}";
+                return;
             }
+
+            TrainWithDocumentation(documentation);
+
         }
         catch (Exception exc)
         {
@@ -459,17 +623,101 @@
             return;
         }
     }
+    async Task BtnTrainWithViews()
+    {
+        try
+        {
+            if (this._viewDDLDocumentations == null)
+            {
+                this._infomsgs = "_viewDDLDocumentations is null";
+                return;
+            }
+
+            List<string> viewNames = new List<string>();
+            List<string> documentation = new List<string>();
+            foreach (DDLDocumentation d in this._viewDDLDocumentations)
+            {
+                viewNames.Add(d.name);
+                documentation.Add(d.documentation);
+            }
+
+            StringBuilder urlBuilder = new StringBuilder();
+            urlBuilder.Append(configuration["ApplicationInfo:mainURL"].ToString());
+            urlBuilder.Append("/");
+            urlBuilder.Append(configuration["ApplicationInfo:trainWithViews"].ToString());
+            string errorMsg = "";
+
+            if (this._vannaUtilitiesService.TrainModelWithViews(urlBuilder.ToString(), viewNames.Distinct().ToList(), this._vannaModel.ModelName, this._sqlServerCredentials, out errorMsg))
+            {
+                this._infomsgs = "Train with views OK. Now will start the training with Documentation!";
+            }
+            else
+            {
+                this._infomsgs = $"Something went wrong in Train with views. Message: {errorMsg}";
+                return;
+            }
+
+            TrainWithDocumentation(documentation);
+        }
+        catch (Exception exc)
+        {
+            this._infomsgs = $"Exception in BtnTrainWithViews. Exception message: {exc.Message}";
+            return;
+        }
+    }
+    
+    private void TrainWithDocumentation(List<string> documentation)
+    {
+        try
+        {
+            StringBuilder urlBuilder = new StringBuilder();
+            urlBuilder.Append(configuration["ApplicationInfo:mainURL"].ToString());
+            urlBuilder.Append("/");
+            urlBuilder.Append(configuration["ApplicationInfo:trainWithDocumentation"].ToString());
+
+            foreach (string doc in documentation)
+            {
+                string error = "";
+                if (!this._vannaUtilitiesService.TrainWithDocumentation(urlBuilder.ToString(), doc, this._vannaModel.ModelName, out error))
+                {
+                    this._infomsgs += "\n" + $"Problem in train with documentation {doc}.\n Exception message: {error}";
+                    return;
+                }
+            }
+            this._infomsgs += "\n" + "Train with Documentation Ok";
+        }
+        catch (Exception exc)
+        {
+            this._infomsgs += "\n" + $"Exception in TrainWithDocumentation. Exception message:{exc.Message}";
+        }
+
+    }
 
     async Task InsertRowTable()
     {
-        this._ddlDocumentationToInsert = new DDLDocumentation();
-        await this._tableDDLDocumentationsGrid.InsertRow(this._ddlDocumentationToInsert);
+        this._tableDocumentationToInsert = new DDLDocumentation();
+        await this._tableDDLDocumentationsGrid.InsertRow(this._tableDocumentationToInsert);
+    }
+
+    async Task InsertRowView()
+    {
+        this._viewDocumentationToInsert = new DDLDocumentation();
+        await this._viewDDLDocumentationsGrid.InsertRow(this._viewDocumentationToInsert);
     }
 
     void OnCreateRowTables(DDLDocumentation tdoc)
     {
-        this._ddlDocumentationToInsert = tdoc;
-        this._tableDDLDocumentations.Add(this._ddlDocumentationToInsert);
+        this._tableDocumentationToInsert = tdoc;
+        this._tableDDLDocumentations.Add(this._tableDocumentationToInsert);
         ResetTableGenVars();
+        this._tableDDLDocumentationsGrid.Reload();
+    }
+
+    void OnCreateRowViews(DDLDocumentation tdoc)
+    {
+        this._viewDocumentationToInsert = tdoc;
+        this._viewDDLDocumentations.Add(this._viewDocumentationToInsert);
+        ResetViewGenVars();
+        this._viewDDLDocumentationsGrid.Reload();
     }
 }
