@@ -1,6 +1,6 @@
 ﻿namespace IntegrationBuilder.VannaAIUtilities
 {
-    public class RequestTrainWithDocumentation
+    public class RequestTrainWithStatement
     {
         public string model { get; set; }
         public string statement { get; set; }

@@ -170,7 +170,7 @@ namespace IntegrationBuilder.VannaAIUtilities
             try
             {
                 error = "";
-                RequestTrainWithDocumentation req = new RequestTrainWithDocumentation();
+                RequestTrainWithStatement req = new RequestTrainWithStatement();
                 req.model = modelName;
                 req.statement = statements;
 
@@ -195,5 +195,6 @@ namespace IntegrationBuilder.VannaAIUtilities
                 return false;
             }
         }
+        
     }
 }
