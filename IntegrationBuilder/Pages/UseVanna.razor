@@ -414,11 +414,12 @@
             StringBuilder urlBuilder = new StringBuilder();
             urlBuilder.Append(configuration["ApplicationInfo:mainURL"].ToString());
             urlBuilder.Append("/");
+            _vannaModel.ModelName = _vannaModel.ModelName.ToLower();
             if (this._vannaModel.NewModel)
             {
                 urlBuilder.Append(configuration["ApplicationInfo:createModelService"].ToString());
                 string error = "";
-                if (_vannaUtilitiesService.CheckIfVannaModelExistOrCreated(urlBuilder.ToString(), this._vannaModel.ModelName, out error))
+                if (_vannaUtilitiesService.CheckIfVannaModelExistOrCreated(urlBuilder.ToString(), this._vannaModel.ModelName.ToLower(), out error))
                 {
                     _infomsgs = $"The model {this._vannaModel.ModelName} Created. You can use it!";
 
@@ -441,7 +442,8 @@
             {
                 urlBuilder.Append(configuration["ApplicationInfo:checkIfModelExistService"].ToString());
                 string error = "";
-                if (_vannaUtilitiesService.CheckIfVannaModelExistOrCreated(urlBuilder.ToString(), this._vannaModel.ModelName, out error))
+                //Vanna saves the model names with lower characters
+                if (_vannaUtilitiesService.CheckIfVannaModelExistOrCreated(urlBuilder.ToString(), this._vannaModel.ModelName.ToLower(), out error))
                 {
                     _infomsgs = $"The model {this._vannaModel.ModelName} Exist. You can use it!";
                     if (GetAllInitialDataForStep3())
@@ -635,7 +637,7 @@
             urlBuilder.Append(configuration["ApplicationInfo:trainWithTables"].ToString());
             string errorMsg = "";
 
-            if (this._vannaUtilitiesService.TrainModelWithTables(urlBuilder.ToString(), tableNames.Distinct().ToList(), this._vannaModel.ModelName, this._sqlServerCredentials, out errorMsg))
+            if (this._vannaUtilitiesService.TrainModelWithTables(urlBuilder.ToString(), tableNames.Distinct().ToList(), this._vannaModel.ModelName.ToLower(), this._sqlServerCredentials, out errorMsg))
             {
                 this._infomsgs = "Train with tables OK. Now will start the training with Documentation!";
             }
@@ -673,7 +675,7 @@
             urlBuilder.Append(configuration["ApplicationInfo:generateSQL"].ToString());
 
             string error = "";
-            this._vannaResponse = this._vannaUtilitiesService.GenerateSQL(urlBuilder.ToString(),this._userQuestion,this._vannaModel.ModelName,out error);
+            this._vannaResponse = this._vannaUtilitiesService.GenerateSQL(urlBuilder.ToString(),this._userQuestion,this._vannaModel.ModelName.ToLower(),out error);
             if (string.IsNullOrEmpty(this._vannaResponse))
             {
                 this._infomsgs = $"Something went wrong in Vanna Generate SQL. Error message: {error}";
@@ -711,7 +713,7 @@
             urlBuilder.Append(configuration["ApplicationInfo:trainWithViews"].ToString());
             string errorMsg = "";
 
-            if (this._vannaUtilitiesService.TrainModelWithViews(urlBuilder.ToString(), viewNames.Distinct().ToList(), this._vannaModel.ModelName, this._sqlServerCredentials, out errorMsg))
+            if (this._vannaUtilitiesService.TrainModelWithViews(urlBuilder.ToString(), viewNames.Distinct().ToList(), this._vannaModel.ModelName.ToLower(), this._sqlServerCredentials, out errorMsg))
             {
                 this._infomsgs = "Train with views OK. Now will start the training with Documentation!";
             }
@@ -744,7 +746,7 @@
             urlBuilder.Append("/");
             urlBuilder.Append(configuration["ApplicationInfo:trainWithSQL"].ToString());
             string error = "";
-            if (!this._vannaUtilitiesService.TrainWithDocumentation(urlBuilder.ToString(), this._sqlStatementForTrain.Trim(), this._vannaModel.ModelName, out error))
+            if (!this._vannaUtilitiesService.TrainWithDocumentation(urlBuilder.ToString(), this._sqlStatementForTrain.Trim(), this._vannaModel.ModelName.ToLower(), out error))
             {
                 this._infomsgs += "\n" + $"Problem in BtnTrainWithSQL {this._sqlStatementForTrain.Trim()}.\n Exception message: {error}";
             }
@@ -770,7 +772,7 @@
             foreach (string doc in documentation)
             {
                 string error = "";
-                if (!this._vannaUtilitiesService.TrainWithDocumentation(urlBuilder.ToString(), doc, this._vannaModel.ModelName, out error))
+                if (!this._vannaUtilitiesService.TrainWithDocumentation(urlBuilder.ToString(), doc, this._vannaModel.ModelName.ToLower(), out error))
                 {
                     this._infomsgs += "\n" + $"Problem in train with documentation {doc}.\n Exception message: {error}";
                     return;
