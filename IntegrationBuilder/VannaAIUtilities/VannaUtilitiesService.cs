@@ -14,7 +14,6 @@ namespace IntegrationBuilder.VannaAIUtilities
         {
             //Just For Test
             error = "";
-     
             try
             {
                 RequestVannaModel req = new RequestVannaModel();
@@ -25,7 +24,6 @@ namespace IntegrationBuilder.VannaAIUtilities
                     NullValueHandling = NullValueHandling.Ignore
                 });
 
-
                 string sresult = "";
                 string sentRequetsError = "";
                 if (!GeneralUtilities.GeneralUtilities.SendRequest(jsonData, url, out sentRequetsError, out sresult))
@@ -33,8 +31,8 @@ namespace IntegrationBuilder.VannaAIUtilities
                     error = "Error in CheckIfVannaModelExistOrCreated (SendRequest). Error message: " + sentRequetsError;
                     return false;
                 }
-                ResponseVannaModel oResponse = new ResponseVannaModel();
-                oResponse = JsonConvert.DeserializeObject<ResponseVannaModel>(sresult);
+                ResponseWithObj oResponse = new ResponseWithObj();
+                oResponse = JsonConvert.DeserializeObject<ResponseWithObj>(sresult);
 
 
                 if (oResponse.success == true)
@@ -78,8 +76,8 @@ namespace IntegrationBuilder.VannaAIUtilities
                     error = "Error in GetAllTablesNames (SendRequest). Exception message: " + sentRequetsError;
                     return null;
                 }
-                ResponseWithServerAndDB oResponse = new ResponseWithServerAndDB();
-                oResponse = JsonConvert.DeserializeObject<ResponseWithServerAndDB>(sresult);
+                ResponseWithStrList oResponse = new ResponseWithStrList();
+                oResponse = JsonConvert.DeserializeObject<ResponseWithStrList>(sresult);
 
                 if (oResponse.success == true)
                 {
@@ -123,7 +121,21 @@ namespace IntegrationBuilder.VannaAIUtilities
                     error = "Error in TrainModelWithTables (SendRequest). Error message: " + sentRequetsError;
                     return false;
                 }
-                return true;
+
+                ResponseWithObj oResponse = new ResponseWithObj();
+                oResponse = JsonConvert.DeserializeObject<ResponseWithObj>(sresult);
+
+
+                if (oResponse.success == true)
+                {
+                    return true;
+
+                }
+                else
+                {
+                    error = oResponse.error;
+                    return false;
+                }
             }
             catch (Exception exc) 
             {
@@ -156,7 +168,21 @@ namespace IntegrationBuilder.VannaAIUtilities
                     error = "Error in TrainModelWithViews (SendRequest). Error message: " + sentRequetsError;
                     return false;
                 }
-                return true;
+
+                ResponseWithObj oResponse = new ResponseWithObj();
+                oResponse = JsonConvert.DeserializeObject<ResponseWithObj>(sresult);
+
+
+                if (oResponse.success == true)
+                {
+                    return true;
+
+                }
+                else
+                {
+                    error = oResponse.error;
+                    return false;
+                }
             }
             catch (Exception exc)
             {
@@ -187,7 +213,21 @@ namespace IntegrationBuilder.VannaAIUtilities
                     error = "Error in TrainWithDocumentation (SendRequest). Error message: " + sentRequetsError;
                     return false;
                 }
-                return true;
+
+                ResponseWithObj oResponse = new ResponseWithObj();
+                oResponse = JsonConvert.DeserializeObject<ResponseWithObj>(sresult);
+
+
+                if (oResponse.success == true)
+                {
+                    return true;
+
+                }
+                else
+                {
+                    error = oResponse.error;
+                    return false;
+                }
             }
             catch (Exception exc)
             {
@@ -195,6 +235,49 @@ namespace IntegrationBuilder.VannaAIUtilities
                 return false;
             }
         }
-        
+
+        public string GenerateSQL(string url, string question, string modelName, out string error) 
+        {
+            try 
+            {
+                error = "";
+                RequestGenerateSQL req = new RequestGenerateSQL();
+                req.model = modelName;
+                req.question = question;
+
+                string jsonData = JsonConvert.SerializeObject(req, new JsonSerializerSettings
+                {
+                    NullValueHandling = NullValueHandling.Ignore
+                });
+
+
+                string sresult = "";
+                string sentRequetsError = "";
+                if (!GeneralUtilities.GeneralUtilities.SendRequest(jsonData, url, out sentRequetsError, out sresult))
+                {
+                    error = "Error in GenerateSQL (SendRequest). Error message: " + sentRequetsError;
+                    return "";
+                }
+
+                ResponseWithStr oResponse = new ResponseWithStr();
+                oResponse = JsonConvert.DeserializeObject<ResponseWithStr>(sresult);
+
+
+                if (oResponse.success == true)
+                {
+                    return oResponse.data;
+                }
+                else
+                {
+                    error = oResponse.error;
+                    return "";
+                }
+            }
+            catch(Exception exc) 
+            {
+                error = $"Exception in GenerateSQL. Exception message:{exc.Message}";
+                return "";
+            }
+        }
     }
 }

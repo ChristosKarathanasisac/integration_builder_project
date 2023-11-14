@@ -206,7 +206,6 @@
                     <RadzenTabsItem Text="Train With SQL">
                                 
                                 <RadzenCard>
-
                                     <RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="build" class="mt-2 mb-4" Text="Train Model"
                                                   Click="@BtnTrainWithSQL" />
 
@@ -215,7 +214,7 @@
                                         <RadzenColumn Size="12" SizeMD="8">
                                             <RadzenCard>
                                                 <RadzenText TextStyle="TextStyle.Caption" TagName="TagName.H3">SQL Query</RadzenText>
-                                                <RadzenTextArea Rows="12" @bind-Value=@_sqlStatementForTrain class="w-100" />
+                                                <RadzenTextArea Rows="10" @bind-Value=@_sqlStatementForTrain class="w-100" />
                                             </RadzenCard>
                                         </RadzenColumn>
                                     </RadzenRow>
@@ -235,7 +234,33 @@
             </RadzenCard>
         </RadzenStepsItem>
         <RadzenStepsItem Text="Ask Questions" Disabled="@_DisabledStep4">
-            <RadzenText TextStyle="TextStyle.H5" TagName="TagName.H3" class="rz-my-6">2. Hello From Step 4</RadzenText>
+            <RadzenCard>
+                <RadzenText TextStyle="TextStyle.DisplayH6" TagName="TagName.H6" class="mb-0">Ask Questions</RadzenText>
+                <RadzenButton  ButtonStyle="ButtonStyle.Primary" Icon="build" class="mt-2 mb-4" Text="Ask Vanna"
+                              Click="@BtnAskVanna" />
+                <RadzenColumn Size="12" SizeMD="12"  >
+                    <RadzenRow Gap="6rem" JustifyContent="JustifyContent.Center">
+
+                        <RadzenCard Style="width=40%"> 
+                            <RadzenText TextStyle="TextStyle.Caption" TagName="TagName.H3">User Question</RadzenText>
+                            <RadzenTextArea Cols="75" Rows="17" @bind-Value=@_userQuestion />
+                         </RadzenCard> 
+
+                        <RadzenCard Style="width=40%">
+                            <RadzenText TextStyle="TextStyle.Caption" TagName="TagName.H3">Vanna Response</RadzenText>
+                            <RadzenTextArea Cols="75" Rows="17" @bind-Value=@_vannaResponse />
+                         </RadzenCard>
+                    </RadzenRow>
+                </RadzenColumn>
+                <RadzenRow Gap="2rem" JustifyContent="JustifyContent.Center">
+                    <RadzenColumn Size="12" SizeMD="6">
+                        <RadzenCard>
+                            <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Info Log</RadzenText>
+                            <RadzenTextArea Rows="4" Disabled="true" @bind-Value=@_infomsgs class="w-100" />
+                        </RadzenCard>
+                    </RadzenColumn>
+                </RadzenRow>
+            </RadzenCard>
         </RadzenStepsItem>
         
     </Steps>
@@ -261,6 +286,9 @@
 
     private List<string> _allViews;
     //private List<string> _selectedViews;
+
+    private string _userQuestion = "";
+    private string _vannaResponse = "";
 
     private List<DDLDocumentation> _tableDDLDocumentations;
     private List<DDLDocumentation> _viewDDLDocumentations;
@@ -397,11 +425,12 @@
                 if (_vannaUtilitiesService.CheckIfVannaModelExistOrCreated(urlBuilder.ToString(), this._vannaModel.ModelName, out error))
                 {
                     _infomsgs = $"The model {this._vannaModel.ModelName} Created. You can use it!";
-                    this._DisabledStep3 = false;
-                    this._DisabledStep4 = false;
+
                     if (GetAllInitialDataForStep3())
                     {
                         _infomsgs += "\n"+"Initial data for Step 3 are set";
+                        this._DisabledStep3 = false;
+                        this._DisabledStep4 = false;
                     }
                 }
                 else
@@ -423,12 +452,14 @@
                     {
                         _infomsgs += "\n" + "Initial data for Step 3 are set";
                         this._DisabledStep3 = false;
+                        this._DisabledStep4 = false;
                     }
 
                 }
                 else
                 {
                     this._DisabledStep3 = true;
+                    this._DisabledStep4 = true;
                     _infomsgs = $"Something went wrong. Error message: {error}";
                 }
             }
@@ -627,6 +658,39 @@
             return;
         }
     }
+    async Task BtnAskVanna() 
+    {
+        try
+        {
+            this._infomsgs = "";
+            this._vannaResponse = "";
+
+            if (string.IsNullOrEmpty(this._userQuestion))
+            {
+                this._infomsgs = "Insert a Question!";
+                return;
+            }
+
+            StringBuilder urlBuilder = new StringBuilder();
+            urlBuilder.Append(configuration["ApplicationInfo:mainURL"].ToString());
+            urlBuilder.Append("/");
+            urlBuilder.Append(configuration["ApplicationInfo:generateSQL"].ToString());
+
+            string error = "";
+            this._vannaResponse = this._vannaUtilitiesService.GenerateSQL(urlBuilder.ToString(),this._userQuestion,this._vannaModel.ModelName,out error);
+            if (string.IsNullOrEmpty(this._vannaResponse))
+            {
+                this._infomsgs = $"Something went wrong in Vanna Generate SQL. Error message: {error}";
+                return;
+            }
+
+        }
+        catch (Exception exc)
+        {
+            _infomsgs = $"Exception in BtnAskVanna {exc.Message}.";
+        }
+    }
+
     async Task BtnTrainWithViews()
     {
         try

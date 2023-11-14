@@ -1,8 +1,8 @@
 ﻿namespace IntegrationBuilder.VannaAIUtilities
 {
-    public class ResponseVannaModel
+    public class ResponseWithStr
     {
-        public object data { get; set; }
+        public string data { get; set; }
         public string error { get; set; }
         public bool success { get; set; }
     }

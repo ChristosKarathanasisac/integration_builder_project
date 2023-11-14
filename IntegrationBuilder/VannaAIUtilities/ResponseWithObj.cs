@@ -1,8 +1,8 @@
 ﻿namespace IntegrationBuilder.VannaAIUtilities
 {
-    public class ResponseTrainVannaWithDDL
+    public class ResponseWithObj
     {
-        public List<string> data { get; set; }
+        public object data { get; set; }
         public string error { get; set; }
         public bool success { get; set; }
     }

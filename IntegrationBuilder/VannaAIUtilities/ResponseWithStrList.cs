@@ -1,6 +1,6 @@
 ﻿namespace IntegrationBuilder.VannaAIUtilities
 {
-    public class ResponseWithServerAndDB
+    public class ResponseWithStrList
     {
         public List<string> data { get; set; }
         public string error { get; set; }
