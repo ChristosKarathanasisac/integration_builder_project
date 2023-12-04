@@ -324,7 +324,7 @@
         try
         {
             StringBuilder urlBuilder = new StringBuilder();
-            urlBuilder.Append(configuration["ApplicationInfo:mainURL"].ToString());
+            urlBuilder.Append(configuration["ApplicationInfo:vannaMainURL"].ToString());
             urlBuilder.Append("/");
             urlBuilder.Append(configuration["ApplicationInfo:getAllTableNames"].ToString());
             string error = "";
@@ -336,7 +336,7 @@
                 return false;
             }
             urlBuilder = new StringBuilder();
-            urlBuilder.Append(configuration["ApplicationInfo:mainURL"].ToString());
+            urlBuilder.Append(configuration["ApplicationInfo:vannaMainURL"].ToString());
             urlBuilder.Append("/");
             urlBuilder.Append(configuration["ApplicationInfo:getAllViewNames"].ToString());
 
@@ -412,7 +412,7 @@
         try
         {
             StringBuilder urlBuilder = new StringBuilder();
-            urlBuilder.Append(configuration["ApplicationInfo:mainURL"].ToString());
+            urlBuilder.Append(configuration["ApplicationInfo:vannaMainURL"].ToString());
             urlBuilder.Append("/");
             _vannaModel.ModelName = _vannaModel.ModelName.ToLower();
             if (this._vannaModel.NewModel)
@@ -632,7 +632,7 @@
             }
 
             StringBuilder urlBuilder = new StringBuilder();
-            urlBuilder.Append(configuration["ApplicationInfo:mainURL"].ToString());
+            urlBuilder.Append(configuration["ApplicationInfo:vannaMainURL"].ToString());
             urlBuilder.Append("/");
             urlBuilder.Append(configuration["ApplicationInfo:trainWithTables"].ToString());
             string errorMsg = "";
@@ -670,7 +670,7 @@
             }
 
             StringBuilder urlBuilder = new StringBuilder();
-            urlBuilder.Append(configuration["ApplicationInfo:mainURL"].ToString());
+            urlBuilder.Append(configuration["ApplicationInfo:vannaMainURL"].ToString());
             urlBuilder.Append("/");
             urlBuilder.Append(configuration["ApplicationInfo:generateSQL"].ToString());
 
@@ -708,7 +708,7 @@
             }
 
             StringBuilder urlBuilder = new StringBuilder();
-            urlBuilder.Append(configuration["ApplicationInfo:mainURL"].ToString());
+            urlBuilder.Append(configuration["ApplicationInfo:vannaMainURL"].ToString());
             urlBuilder.Append("/");
             urlBuilder.Append(configuration["ApplicationInfo:trainWithViews"].ToString());
             string errorMsg = "";
@@ -742,7 +742,7 @@
             }
 
             StringBuilder urlBuilder = new StringBuilder();
-            urlBuilder.Append(configuration["ApplicationInfo:mainURL"].ToString());
+            urlBuilder.Append(configuration["ApplicationInfo:vannaMainURL"].ToString());
             urlBuilder.Append("/");
             urlBuilder.Append(configuration["ApplicationInfo:trainWithSQL"].ToString());
             string error = "";
@@ -765,7 +765,7 @@
         try
         {
             StringBuilder urlBuilder = new StringBuilder();
-            urlBuilder.Append(configuration["ApplicationInfo:mainURL"].ToString());
+            urlBuilder.Append(configuration["ApplicationInfo:vannaMainURL"].ToString());
             urlBuilder.Append("/");
             urlBuilder.Append(configuration["ApplicationInfo:trainWithDocumentation"].ToString());
 

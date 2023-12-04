@@ -1,0 +1,88 @@
+﻿@page "/usehaggingchat"
+@using System.Text;
+@using IntegrationBuilder.HuggingChatUtilities;
+@inject IConfiguration configuration
+
+<RadzenCard>
+    <RadzenText TextStyle="TextStyle.DisplayH6" TagName="TagName.H6" class="mb-0">Use Hugging Chat</RadzenText>
+    <RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="build" class="mt-2 mb-4" Text="Ask Hugging Chat"
+                  Click="@BtnAskHuggingChat" />
+    <div class="rz-p-4 rz-text-align-center">
+        <RadzenCheckBox @bind-Value=@this._isNewChat Name="isNewChat"/>
+        <RadzenLabel Style="color:white;" Text="New Chat" Component="isNewChat" />
+    </div>
+
+    <RadzenColumn Size="12" SizeMD="12">
+        <RadzenRow Gap="6rem" JustifyContent="JustifyContent.Center">
+
+            <RadzenCard Style="width=40%">
+                <RadzenText TextStyle="TextStyle.Caption" TagName="TagName.H3">User Question</RadzenText>
+                <RadzenTextArea Cols="80" Rows="17" @bind-Value=@_userQuestion />
+            </RadzenCard>
+
+            <RadzenCard Style="width=40%">
+                <RadzenText TextStyle="TextStyle.Caption" TagName="TagName.H3">Hugging Chat Response</RadzenText>
+                <RadzenTextArea Cols="80" Rows="17" @bind-Value=@_huggingResponse />
+            </RadzenCard>
+        </RadzenRow>
+    </RadzenColumn>
+    <RadzenRow Gap="2rem" JustifyContent="JustifyContent.Center">
+        <RadzenColumn Size="12" SizeMD="6">
+            <RadzenCard>
+                <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Info Log</RadzenText>
+                <RadzenTextArea Rows="4" Disabled="true" @bind-Value=@_infomsgs class="w-100" />
+            </RadzenCard>
+        </RadzenColumn>
+    </RadzenRow>
+</RadzenCard>
+
+@code {
+    private string _userQuestion;
+    private string _huggingResponse;
+    private string _infomsgs;
+    private bool _isNewChat;
+
+    private HuggingChatUtilitiesService huggingChatUtilitiesService;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        this._isNewChat = true;
+        this.huggingChatUtilitiesService = new HuggingChatUtilitiesService();
+    }
+
+
+    async Task BtnAskHuggingChat()
+    {
+        try
+        {
+            this._huggingResponse =  "";
+            this._infomsgs = "";
+
+            if (string.IsNullOrEmpty(this._userQuestion))
+            {
+                this._infomsgs = "Insert a Question!";
+                return;
+            }
+
+            StringBuilder urlBuilder = new StringBuilder();
+            urlBuilder.Append(configuration["ApplicationInfo:HuggingChatMainURL"].ToString());
+            urlBuilder.Append("/");
+            urlBuilder.Append(configuration["ApplicationInfo:useHaggingChat"].ToString());
+
+            string error = "";
+            this._huggingResponse = this.huggingChatUtilitiesService.UseHaggingChat(urlBuilder.ToString(), this._userQuestion, this._isNewChat, out error);
+
+            if (string.IsNullOrEmpty(this._huggingResponse))
+            {
+                this._infomsgs = $"Something went wrong in Use Hugging Chat. Error message: {error}";
+                return;
+            }
+
+        }
+        catch (Exception exc)
+        {
+            _infomsgs = $"Exception in BtnAskHuggingChat {exc.Message}.";
+        }
+    }
+}
