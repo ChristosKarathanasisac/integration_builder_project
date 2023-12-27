@@ -1,4 +1,6 @@
 ﻿@page "/cSharpClassesFromJson"
+@using JsonToCSharpClasses;
+@using Xamasoft.JsonClassGenerator;
 
 <RadzenButton  ButtonStyle="ButtonStyle.Primary" Icon="build" class="mt-2 mb-4" Text="Ask Vanna"
                               Click="@BtnTest" />
@@ -8,7 +10,16 @@
     {
         try
         {
+            Xamasoft.JsonClassGenerator.JsonClassGenerator jsonClassGenerator = new JsonClassGenerator();
+            Console.WriteLine("Hello, World!");
+            Helper h = new Helper();
+            // h.GenerateCSharp();
+            String jsonText = "{\r\n    \"name\": \"John Doe\"," +
+                    "\r\n    \"age\": 30,\r\n    \"email\": \"johndoe@example.com\"," +
+                    "\r\n    \"isSubscribed\": true,\r\n    \"address\": {\r\n        \"street\": \"123 Main St\",\r\n        \"city\": \"Anytown\",\r\n        \"zipcode\": \"12345\"\r\n    },\r\n    \"hobbies\": [\"reading\", \"hiking\", \"gaming\"]\r\n}";
 
+            string error = "";
+            string test = jsonClassGenerator.GenerateClasses(jsonText, out error).ToString();
 
         }
         catch (Exception exc)
