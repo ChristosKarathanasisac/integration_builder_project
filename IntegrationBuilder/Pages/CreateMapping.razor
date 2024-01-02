@@ -1,5 +1,98 @@
 ﻿@page "/createMapping"
 
+<RadzenCard>
+    <RadzenText TextStyle="TextStyle.DisplayH6" TagName="TagName.H6" class="mb-0">Create Mapping</RadzenText>
+    <RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="build" class="mt-2 mb-4" Text="Create Mapping"
+                  Click="@BtnCreateMapping" />
+    
+    <RadzenSplitter Orientation="Orientation.Vertical" style="height: 400px; border: 1px solid rgba(0,0,0,.08);">
+        <RadzenSplitterPane>
+            <RadzenSplitter>
+                <RadzenSplitterPane>
+                    <RadzenSteps>
+                        <Steps>
+                            <RadzenStepsItem Text="Set Query">
+                                <RadzenColumn Size="12" SizeMD="12">
+                                    <RadzenRow Gap="6rem" JustifyContent="JustifyContent.Left">
+
+                                        <RadzenCard Style="width=30%">
+                                            <RadzenText TextStyle="TextStyle.Caption" TagName="TagName.H3">Query</RadzenText>
+                                            <RadzenTextArea Cols="100" Rows="17" @bind-Value=@_query />
+                                        </RadzenCard>
+                                    </RadzenRow>
+                                </RadzenColumn>
+                            </RadzenStepsItem>
+                            <RadzenStepsItem Text="Set Object Class">
+                                <RadzenColumn Size="12" SizeMD="12">
+                                    <RadzenRow Gap="6rem" JustifyContent="JustifyContent.Left">
+                                        <RadzenCard Style="width=30%">
+                                            <RadzenText TextStyle="TextStyle.Caption" TagName="TagName.H3">Object Class</RadzenText>
+                                            <RadzenTextArea Cols="100" Rows="17" @bind-Value=@_objClassStr />
+                                        </RadzenCard>
+                                    </RadzenRow>
+                                </RadzenColumn>
+                            </RadzenStepsItem>
+                            <RadzenStepsItem Text="Describe Mapping">
+                                <RadzenColumn Size="12" SizeMD="12">
+                                    <RadzenRow Gap="6rem" JustifyContent="JustifyContent.Left">
+                                        <RadzenCard Style="width=30%">
+                                            <RadzenText TextStyle="TextStyle.Caption" TagName="TagName.H3">Describe Mapping</RadzenText>
+                                            <RadzenTextArea Cols="100" Rows="17" @bind-Value=@_mappingDesc />
+                                        </RadzenCard>
+                                    </RadzenRow>
+                                </RadzenColumn>
+                            </RadzenStepsItem>
+                        </Steps>
+                    </RadzenSteps>
+                </RadzenSplitterPane>
+                <RadzenSplitterPane>
+                    <RadzenCard>
+                        <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Result Class</RadzenText>
+                        <RadzenTextArea Rows="4" Disabled="true" @bind-Value=@_resultClass class="w-100" />
+                    </RadzenCard>
+                </RadzenSplitterPane>
+            </RadzenSplitter>
+        </RadzenSplitterPane>
+    </RadzenSplitter>
+
+    <RadzenRow Gap="2rem" JustifyContent="JustifyContent.Center">
+        <RadzenColumn Size="12" SizeMD="6">
+            <RadzenCard>
+                <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Info Log</RadzenText>
+                <RadzenTextArea Rows="4" Disabled="true" @bind-Value=@_infomsgs class="w-100" />
+            </RadzenCard>
+        </RadzenColumn>
+    </RadzenRow>
+</RadzenCard>
+
+
 @code {
+    private string _query;
+    private string _objClassStr;
+    private string _mappingDesc;
+    private string _resultClass;
+    private string _infomsgs;
+
+    async Task BtnCreateMapping()
+    {
+        if (string.IsNullOrEmpty(_query))
+        {
+            this._infomsgs = "Query field is empty!";
+            return;
+        }
+        if (string.IsNullOrEmpty(_objClassStr))
+        {
+            this._infomsgs = "Object class field is empty!";
+            return;
+        }
+        if (string.IsNullOrEmpty(_mappingDesc))
+        {
+            this._infomsgs = "Mapping Description field is empty!";
+            return;
+        }
+
+
+    }
+
 
 }
