@@ -41,6 +41,7 @@
     private string _huggingResponse;
     private string _infomsgs;
     private bool _isNewChat;
+    private string _conversation_id;
 
     private HuggingChatUtilitiesService huggingChatUtilitiesService;
 
@@ -49,6 +50,7 @@
     {
         this._isNewChat = true;
         this.huggingChatUtilitiesService = new HuggingChatUtilitiesService();
+        this._conversation_id = "";
     }
 
 
@@ -71,7 +73,8 @@
             urlBuilder.Append(configuration["ApplicationInfo:useHaggingChat"].ToString());
 
             string error = "";
-            this._huggingResponse = this.huggingChatUtilitiesService.UseHaggingChat(urlBuilder.ToString(), this._userQuestion, this._isNewChat, out error);
+            string id = "";
+            this._huggingResponse = this.huggingChatUtilitiesService.UseHaggingChat(urlBuilder.ToString(), this._userQuestion, this._isNewChat, out id, out error, _conversation_id);
 
             if (string.IsNullOrEmpty(this._huggingResponse))
             {

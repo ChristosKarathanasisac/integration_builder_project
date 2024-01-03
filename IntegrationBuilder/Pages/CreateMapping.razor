@@ -1,11 +1,14 @@
 ﻿@page "/createMapping"
+@using System.Text;
+@using IntegrationBuilder.HuggingChatUtilities;
+@inject IConfiguration configuration
 
 <RadzenCard>
     <RadzenText TextStyle="TextStyle.DisplayH6" TagName="TagName.H6" class="mb-0">Create Mapping</RadzenText>
     <RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="build" class="mt-2 mb-4" Text="Create Mapping"
                   Click="@BtnCreateMapping" />
     
-    <RadzenSplitter Orientation="Orientation.Vertical" style="height: 400px; border: 1px solid rgba(0,0,0,.08);">
+    <RadzenSplitter Orientation="Orientation.Vertical">
         <RadzenSplitterPane>
             <RadzenSplitter>
                 <RadzenSplitterPane>
@@ -17,7 +20,7 @@
 
                                         <RadzenCard Style="width=30%">
                                             <RadzenText TextStyle="TextStyle.Caption" TagName="TagName.H3">Query</RadzenText>
-                                            <RadzenTextArea Cols="100" Rows="17" @bind-Value=@_query />
+                                            <RadzenTextArea Cols="110" Rows="16" @bind-Value=@_query />
                                         </RadzenCard>
                                     </RadzenRow>
                                 </RadzenColumn>
@@ -27,17 +30,17 @@
                                     <RadzenRow Gap="6rem" JustifyContent="JustifyContent.Left">
                                         <RadzenCard Style="width=30%">
                                             <RadzenText TextStyle="TextStyle.Caption" TagName="TagName.H3">Object Class</RadzenText>
-                                            <RadzenTextArea Cols="100" Rows="17" @bind-Value=@_objClassStr />
+                                            <RadzenTextArea Cols="110" Rows="16" @bind-Value=@_objClassStr />
                                         </RadzenCard>
                                     </RadzenRow>
                                 </RadzenColumn>
                             </RadzenStepsItem>
                             <RadzenStepsItem Text="Describe Mapping">
                                 <RadzenColumn Size="12" SizeMD="12">
-                                    <RadzenRow Gap="6rem" JustifyContent="JustifyContent.Left">
+                                    <RadzenRow Gap="2rem" JustifyContent="JustifyContent.Left">
                                         <RadzenCard Style="width=30%">
                                             <RadzenText TextStyle="TextStyle.Caption" TagName="TagName.H3">Describe Mapping</RadzenText>
-                                            <RadzenTextArea Cols="100" Rows="17" @bind-Value=@_mappingDesc />
+                                            <RadzenTextArea Cols="110" Rows="16" @bind-Value=@_mappingDesc />
                                         </RadzenCard>
                                     </RadzenRow>
                                 </RadzenColumn>
@@ -46,9 +49,16 @@
                     </RadzenSteps>
                 </RadzenSplitterPane>
                 <RadzenSplitterPane>
+                    <RadzenColumn Size="12" SizeMD="12">
+                        <RadzenRow Gap="6rem" JustifyContent="JustifyContent.Left">
+                            <RadzenCard Style="width=30%">
+                                <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Result Class</RadzenText>
+                                <RadzenTextArea Cols="110" Rows="20" @bind-Value=@_resultClass />
+                            </RadzenCard>
+                        </RadzenRow>
+                    </RadzenColumn>
                     <RadzenCard>
-                        <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Result Class</RadzenText>
-                        <RadzenTextArea Rows="4" Disabled="true" @bind-Value=@_resultClass class="w-100" />
+                        
                     </RadzenCard>
                 </RadzenSplitterPane>
             </RadzenSplitter>
@@ -67,14 +77,22 @@
 
 
 @code {
+    private HuggingChatUtilitiesService huggingChatUtilitiesService;
     private string _query;
     private string _objClassStr;
     private string _mappingDesc;
     private string _resultClass;
     private string _infomsgs;
 
+    protected override async Task OnInitializedAsync()
+    {
+        this.huggingChatUtilitiesService = new HuggingChatUtilitiesService();
+    }
+
     async Task BtnCreateMapping()
     {
+
+
         if (string.IsNullOrEmpty(_query))
         {
             this._infomsgs = "Query field is empty!";
@@ -91,7 +109,50 @@
             return;
         }
 
+        StringBuilder urlBuilder = new StringBuilder();
+        urlBuilder.Append(configuration["ApplicationInfo:HuggingChatMainURL"].ToString());
+        urlBuilder.Append("/");
+        urlBuilder.Append(configuration["ApplicationInfo:useHaggingChat"].ToString());
 
+        string resp = "";
+        string error = "";
+        //User must add all of the object classes in the field
+        //If conversation is new --> conversation_id == -999
+        string conversation_id = "";
+        resp = this.huggingChatUtilitiesService.UseHaggingChat(urlBuilder.ToString(), this._objClassStr, true,out conversation_id, out error, "-999");
+
+        if (string.IsNullOrEmpty(resp))
+        {
+            this._infomsgs = $"Something went wrong in Use Hugging Chat. Error message: {error}";
+            return;
+        }
+
+        resp = this.huggingChatUtilitiesService.UseHaggingChat(urlBuilder.ToString(), this._query, false, out conversation_id, out error, conversation_id);
+        if (string.IsNullOrEmpty(resp))
+        {
+            this._infomsgs = $"Something went wrong in Use Hugging Chat. Error message: {error}";
+            return;
+        }
+
+        resp = this.huggingChatUtilitiesService.UseHaggingChat(urlBuilder.ToString(), this._mappingDesc, false, out conversation_id, out error, conversation_id);
+        if (string.IsNullOrEmpty(resp))
+        {
+            this._infomsgs = $"Something went wrong in Use Hugging Chat. Error message: {error}";
+            return;
+        }
+
+        string temp = @"Create the method which creates an object of the class Paylod which I gave you. The will came from output of the sql query sql.
+                        The results of this query are stored in a datatable. Fill all properties of the class. Give me just the code of the the method and
+                        dont write nothing more";
+
+        resp = this.huggingChatUtilitiesService.UseHaggingChat(urlBuilder.ToString(), this._mappingDesc, false, out conversation_id, out error, conversation_id);
+        if (string.IsNullOrEmpty(resp))
+        {
+            this._infomsgs = $"Something went wrong in Use Hugging Chat. Error message: {error}";
+            return;
+        }
+
+        this._resultClass = resp;
     }
 
 

@@ -5,14 +5,16 @@ namespace IntegrationBuilder.HuggingChatUtilities
 {
     public class HuggingChatUtilitiesService
     {
-        public string UseHaggingChat(string url, string question, bool isNewModel, out string error) 
+        public string UseHaggingChat(string url, string question, bool isNewModel,out string created_id, out string error,string conversation_id) 
         {
-            try 
+            try
             {
+                created_id = "";
                 error = "";
                 RequestUseHaggingChat req = new RequestUseHaggingChat();
                 req.newChat = isNewModel;
                 req.inpout = question;
+                req.conversation_id = conversation_id;
 
                 string jsonData = JsonConvert.SerializeObject(req, new JsonSerializerSettings
                 {
@@ -33,6 +35,7 @@ namespace IntegrationBuilder.HuggingChatUtilities
 
                 if (oResponse.success == true)
                 {
+                    created_id = oResponse.conversation_id;
                     return oResponse.data;
                 }
                 else
@@ -41,8 +44,9 @@ namespace IntegrationBuilder.HuggingChatUtilities
                     return "";
                 }
             }
-            catch (Exception exc) 
+            catch (Exception exc)
             {
+                created_id = "-999";
                 error = $"Exception in UseHaggingChat. Exception message:{exc.Message}";
                 return "";
             }
