@@ -118,39 +118,43 @@
         string error = "";
         //User must add all of the object classes in the field
         //If conversation is new --> conversation_id == -999
-        string conversation_id = "";
-        resp = this.huggingChatUtilitiesService.UseHaggingChat(urlBuilder.ToString(), this._objClassStr, true,out conversation_id, out error, "-999");
-
-        if (string.IsNullOrEmpty(resp))
-        {
-            this._infomsgs = $"Something went wrong in Use Hugging Chat. Error message: {error}";
-            return;
-        }
-
-        resp = this.huggingChatUtilitiesService.UseHaggingChat(urlBuilder.ToString(), this._query, false, out conversation_id, out error, conversation_id);
-        if (string.IsNullOrEmpty(resp))
-        {
-            this._infomsgs = $"Something went wrong in Use Hugging Chat. Error message: {error}";
-            return;
-        }
-
-        resp = this.huggingChatUtilitiesService.UseHaggingChat(urlBuilder.ToString(), this._mappingDesc, false, out conversation_id, out error, conversation_id);
-        if (string.IsNullOrEmpty(resp))
-        {
-            this._infomsgs = $"Something went wrong in Use Hugging Chat. Error message: {error}";
-            return;
-        }
-
-        string temp = @"Create the method which creates an object of the class Paylod which I gave you. The will came from output of the sql query sql.
+        string instructions = @"Create the method which creates an object of the class Paylod which I gave you. The will came from output of the sql query sql.
                         The results of this query are stored in a datatable. Fill all properties of the class. Give me just the code of the the method and
                         dont write nothing more";
 
-        resp = this.huggingChatUtilitiesService.UseHaggingChat(urlBuilder.ToString(), this._mappingDesc, false, out conversation_id, out error, conversation_id);
+        string huggingChatInput = this._query + '\n' + this._objClassStr + '\n' + this._mappingDesc + '\n' + instructions;
+
+        string conversation_id = "";
+        resp = this.huggingChatUtilitiesService.UseHaggingChat(urlBuilder.ToString(), huggingChatInput, true, out conversation_id, out error, "-999");
+
         if (string.IsNullOrEmpty(resp))
         {
             this._infomsgs = $"Something went wrong in Use Hugging Chat. Error message: {error}";
             return;
         }
+
+        // resp = this.huggingChatUtilitiesService.UseHaggingChat(urlBuilder.ToString(), this._query, false, out conversation_id, out error, conversation_id);
+        // if (string.IsNullOrEmpty(resp))
+        // {
+        //     this._infomsgs = $"Something went wrong in Use Hugging Chat. Error message: {error}";
+        //     return;
+        // }
+
+        // resp = this.huggingChatUtilitiesService.UseHaggingChat(urlBuilder.ToString(), this._mappingDesc, false, out conversation_id, out error, conversation_id);
+        // if (string.IsNullOrEmpty(resp))
+        // {
+        //     this._infomsgs = $"Something went wrong in Use Hugging Chat. Error message: {error}";
+        //     return;
+        // }
+
+        // string temp =
+
+        // resp = this.huggingChatUtilitiesService.UseHaggingChat(urlBuilder.ToString(), this._mappingDesc, false, out conversation_id, out error, conversation_id);
+        // if (string.IsNullOrEmpty(resp))
+        // {
+        //     this._infomsgs = $"Something went wrong in Use Hugging Chat. Error message: {error}";
+        //     return;
+        // }
 
         this._resultClass = resp;
     }
