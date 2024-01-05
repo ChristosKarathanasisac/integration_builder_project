@@ -116,11 +116,12 @@
 
         string resp = "";
         string error = "";
-        //User must add all of the object classes in the field
-        //If conversation is new --> conversation_id == -999
-        string instructions = @"Create the method which creates an object of the class Paylod which I gave you. The will came from output of the sql query sql.
-                        The results of this query are stored in a datatable. Fill all properties of the class. Give me just the code of the the method and
-                        dont write nothing more";
+        
+
+        string instructions = @"Create a method that executes the given query on a SQL Server database.
+                                It should store the returned records in a DataTable, then create an object of the root class based on this data.
+                                Subsequently, convert this object to JSON using the Newtonsoft library and execute a POST request to a specified URL.
+                                Do the entire mapping. Give me only the method with the mapping";
 
         string huggingChatInput = this._query + '\n' + this._objClassStr + '\n' + this._mappingDesc + '\n' + instructions;
 
@@ -133,28 +134,6 @@
             return;
         }
 
-        // resp = this.huggingChatUtilitiesService.UseHaggingChat(urlBuilder.ToString(), this._query, false, out conversation_id, out error, conversation_id);
-        // if (string.IsNullOrEmpty(resp))
-        // {
-        //     this._infomsgs = $"Something went wrong in Use Hugging Chat. Error message: {error}";
-        //     return;
-        // }
-
-        // resp = this.huggingChatUtilitiesService.UseHaggingChat(urlBuilder.ToString(), this._mappingDesc, false, out conversation_id, out error, conversation_id);
-        // if (string.IsNullOrEmpty(resp))
-        // {
-        //     this._infomsgs = $"Something went wrong in Use Hugging Chat. Error message: {error}";
-        //     return;
-        // }
-
-        // string temp =
-
-        // resp = this.huggingChatUtilitiesService.UseHaggingChat(urlBuilder.ToString(), this._mappingDesc, false, out conversation_id, out error, conversation_id);
-        // if (string.IsNullOrEmpty(resp))
-        // {
-        //     this._infomsgs = $"Something went wrong in Use Hugging Chat. Error message: {error}";
-        //     return;
-        // }
 
         this._resultClass = resp;
     }
