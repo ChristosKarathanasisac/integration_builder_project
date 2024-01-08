@@ -143,7 +143,7 @@
                         </RadzenDataGrid>
                     </RadzenCard>
                             </RadzenTabsItem>
-                    <RadzenTabsItem Text="Train With Views">
+                         <RadzenTabsItem Text="Train With Views">
                                 <RadzenText TextStyle="TextStyle.DisplayH6" TagName="TagName.H6" class="mb-0">Train With Views</RadzenText>
 
                                 <RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="build" class="mt-2 mb-4" Text="Train Model"
@@ -199,7 +199,7 @@
                             <RadzenCard>
                     </RadzenCard>
                             </RadzenTabsItem>
-                    <RadzenTabsItem Text="Train With SQL">
+                         <RadzenTabsItem Text="Train With SQL">
                                 
                                 <RadzenCard>
                                     <RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="build" class="mt-2 mb-4" Text="Train Model"
@@ -216,6 +216,23 @@
                                     </RadzenRow>
                                 </RadzenCard>
                             </RadzenTabsItem>
+                         <RadzenTabsItem Text="Train With Documentation">
+                                <RadzenCard>
+                                    <RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="build" class="mt-2 mb-4" Text="Train Model"
+                                                  Click="@BtnTrainWithDocumentation" />
+
+                                    <RadzenText TextStyle="TextStyle.DisplayH6" TagName="TagName.H6" class="mb-0">Train With Documentation</RadzenText>
+                                    <RadzenRow Gap="2rem" JustifyContent="JustifyContent.Left">
+                                        <RadzenColumn Size="12" SizeMD="8">
+                                            <RadzenCard>
+                                                <RadzenText TextStyle="TextStyle.Caption" TagName="TagName.H3">Documentation</RadzenText>
+                                                <RadzenTextArea Rows="10" @bind-Value=@_documentationForTrain class="w-100" />
+                                            </RadzenCard>
+                                        </RadzenColumn>
+                                    </RadzenRow>
+                                </RadzenCard>
+                            </RadzenTabsItem>
+
                         </Tabs>
                     </RadzenTabs>
                 }
@@ -288,6 +305,7 @@
     private List<DDLDocumentation> _tableDDLDocumentations;
     private List<DDLDocumentation> _viewDDLDocumentations;
     private string _sqlStatementForTrain;
+    private string _documentationForTrain;
 
     RadzenDataGrid<DDLDocumentation> _tableDDLDocumentationsGrid;
     RadzenDataGrid<DDLDocumentation> _viewDDLDocumentationsGrid;
@@ -310,6 +328,7 @@
         _tableDDLDocumentations = new List<DDLDocumentation>();
         _viewDDLDocumentations = new List<DDLDocumentation>();
         _sqlStatementForTrain = "";
+        _documentationForTrain = "";
 
     }
 
@@ -646,6 +665,7 @@
                 return;
             }
 
+
             TrainWithDocumentation(documentation);
 
         }
@@ -655,6 +675,30 @@
             return;
         }
     }
+
+    async Task BtnTrainWithDocumentation()
+    {
+        try
+        {
+            this._infomsgs = "";
+
+            if (string.IsNullOrEmpty(this._documentationForTrain))
+            {
+                this._infomsgs = "Add some documentation!";
+                return;
+            }
+
+            List<string> tmp = new List<string>();
+            tmp.Add(this._documentationForTrain);
+            TrainWithDocumentation(tmp);
+        }
+        catch (Exception exc)
+        {
+            this._infomsgs = $"Exception in BtnTrainWithDocumentation. Exception message: {exc.Message}";
+        }
+
+    }
+
     async Task BtnAskVanna() 
     {
         try
@@ -692,6 +736,8 @@
     {
         try
         {
+            this._infomsgs = "";
+
             if (this._viewDDLDocumentations == null)
             {
                 this._infomsgs = "_viewDDLDocumentations is null";
@@ -734,6 +780,8 @@
     {
         try
         {
+            this._infomsgs = "";
+
             if (string.IsNullOrEmpty(this._sqlStatementForTrain))
             {
                 this._infomsgs = "SQL field is empty!";
@@ -763,6 +811,8 @@
     {
         try
         {
+            this._infomsgs = "";
+
             StringBuilder urlBuilder = new StringBuilder();
             urlBuilder.Append(configuration["ApplicationInfo:vannaMainURL"].ToString());
             urlBuilder.Append("/");
