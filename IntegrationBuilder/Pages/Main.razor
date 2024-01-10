@@ -255,6 +255,8 @@
                             <RadzenText TextStyle="TextStyle.DisplayH6" TagName="TagName.H6" class="mb-0">Ask Questions</RadzenText>
                             <RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="build" class="mt-2 mb-4" Text="Ask Vanna"
                                           Click="@BtnAskVanna" />
+                            <RadzenButton ButtonStyle="ButtonStyle.Primary" Disabled="@(string.IsNullOrEmpty(this._vannaResponse))" Icon="build" class="mt-2 mb-4" Text="Save Query"
+                                          Click="@BtnSaveQuery" />
                             <RadzenColumn Size="12" SizeMD="12">
                                 <RadzenRow Gap="6rem" JustifyContent="JustifyContent.Center">
 
@@ -752,6 +754,20 @@
         }
 
     }
+
+    async Task BtnSaveQuery()
+    {
+        try
+        {
+           
+        }
+        catch (Exception exc)
+        {
+            
+        }
+    }
+
+
 
     async Task BtnAskVanna()
     {
