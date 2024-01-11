@@ -3,6 +3,8 @@
 @using IntegrationBuilder.VannaAIUtilities;
 @using Microsoft.EntityFrameworkCore
 @using System.Text;
+@inject DialogService DialogService
+@inject IJSRuntime JS
 @page "/main"
 
 
@@ -255,8 +257,10 @@
                             <RadzenText TextStyle="TextStyle.DisplayH6" TagName="TagName.H6" class="mb-0">Ask Questions</RadzenText>
                             <RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="build" class="mt-2 mb-4" Text="Ask Vanna"
                                           Click="@BtnAskVanna" />
-                            <RadzenButton ButtonStyle="ButtonStyle.Primary" Disabled="@(string.IsNullOrEmpty(this._vannaResponse))" Icon="build" class="mt-2 mb-4" Text="Save Query"
+                            <RadzenButton ButtonStyle="ButtonStyle.Primary" Disabled="@((string.IsNullOrEmpty(this._vannaResponse))  || (!string.IsNullOrEmpty(this._savedQuery)) )" Icon="done_all" class="mt-2 mb-4" Text="Save Query"
                                           Click="@BtnSaveQuery" />
+                            <RadzenButton ButtonStyle="ButtonStyle.Primary" Disabled="@(string.IsNullOrEmpty(this._savedQuery))" Icon="pageview" class="mt-2 mb-4" Text="Preview Query"
+                                          Click="@BtnShowSavedQuery" />
                             <RadzenColumn Size="12" SizeMD="12">
                                 <RadzenRow Gap="6rem" JustifyContent="JustifyContent.Center">
 
@@ -283,7 +287,6 @@
                     </RadzenStepsItem>
                 </Steps>
             </RadzenSteps>
-
         </RadzenTabsItem>
         <RadzenTabsItem Text="Get Classes from Json" Disabled="@(_step2disabled)">
             <RadzenText TextStyle="TextStyle.H5" TagName="TagName.H3" class="rz-my-6">2. Hello From Step 2</RadzenText>
@@ -294,6 +297,32 @@
     </Tabs>
 </RadzenTabs>
 
+
+
+@code
+{
+        async Task ShowQueryPopup()
+        {
+            var result = await DialogService.OpenAsync("Query", ds =>
+    @<RadzenStack Gap="1.5rem">
+        <RadzenStack Orientation="Orientation.Horizontal" Gap="0.5rem" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.SpaceBetween">
+            <RadzenStack Orientation="Orientation.Horizontal">
+            <RadzenCard>
+                    <RadzenCard Style="width=40%">
+                        <RadzenText TextStyle="TextStyle.Caption" TagName="TagName.H3">Query</RadzenText>
+                        <RadzenTextArea ReadOnly="true" Cols="80" Rows="17" @bind-Value=@_savedQuery />
+                    </RadzenCard>
+                    <RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="build" class="mt-2 mb-4" Text="Clear"
+                                  Click="@BtnClearSavedQuery" />
+                    <RadzenButton Text="ΑΚΥΡΩΣΗ" Click="() => ds.Close(false)" ButtonStyle="ButtonStyle.Light" />
+            </RadzenCard>
+                
+            </RadzenStack>
+        </RadzenStack>
+    </RadzenStack>
+    , new DialogOptions() { Width = $"{50}%", Height = $"{70}%" });
+}
+}
 
 @code {
 
@@ -307,7 +336,7 @@
         this._step2disabled = true;
         this._step3disabled = true;
 
-       
+
         _sqlServerCredentials = new Credentials();
         _vannaModel = new VannaModel();
         _vannaUtilitiesService = new VannaUtilitiesService();
@@ -315,8 +344,8 @@
         _viewDDLDocumentations = new List<DDLDocumentation>();
         _sqlStatementForTrain = "";
         _documentationForTrain = "";
+        _savedQuery = "";
 
-        
     }
 
     void OnChange(int index)
@@ -346,6 +375,7 @@
     private bool _DisabledStep2 = true;
     private bool _DisabledStep3 = true;
     private bool _DisabledStep4 = true;
+    private string _savedQuery;
 
     TabPosition tabPosition = TabPosition.Top;
 
@@ -757,14 +787,32 @@
 
     async Task BtnSaveQuery()
     {
-        try
+        this._infomsgs = "";
+        if (string.IsNullOrEmpty(this._vannaResponse))
         {
-           
+
+            this._infomsgs = "Vanna response text box is empty!";
+            return;
         }
-        catch (Exception exc)
+        this._savedQuery = this._vannaResponse.ToString();
+    }
+
+    async Task BtnShowSavedQuery()
+    {
+        this._infomsgs = "";
+        if(string.IsNullOrEmpty(this._vannaResponse))
         {
-            
+
+            this._infomsgs = "Vanna response text box is empty!";
+            return;
         }
+        ShowQueryPopup();
+    }
+
+    async Task BtnClearSavedQuery()
+    {
+        this._savedQuery = "";
+        this.StateHasChanged();
     }
 
 
