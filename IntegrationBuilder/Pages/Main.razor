@@ -289,7 +289,7 @@
                 </Steps>
             </RadzenSteps>
         </RadzenTabsItem>
-        <RadzenTabsItem Text="Get Classes from Json" Disabled="@(_step2disabled)">
+        <RadzenTabsItem Text="Get Classes from Json" Disabled="@(string.IsNullOrEmpty(this._savedQuery))">
             <RadzenText TextStyle="TextStyle.H5" TagName="TagName.H3" class="rz-my-6">2. Hello From Step 2</RadzenText>
         </RadzenTabsItem>
         <RadzenTabsItem Text="Create mapping" Disabled="@(_step3disabled)">
@@ -335,16 +335,12 @@
 
 @code {
 
-    private bool _step2disabled;
     private bool _step3disabled;
 
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
-
-        this._step2disabled = true;
         this._step3disabled = true;
-
 
         _sqlServerCredentials = new Credentials();
         _vannaModel = new VannaModel();
