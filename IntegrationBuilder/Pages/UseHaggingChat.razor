@@ -21,6 +21,12 @@
             </RadzenCard>
 
             <RadzenCard Style="width=40%">
+                @if (_isLoading)
+                {
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                }
                 <RadzenText TextStyle="TextStyle.Caption" TagName="TagName.H3">Hugging Chat Response</RadzenText>
                 <RadzenTextArea Cols="80" Rows="17" @bind-Value=@_huggingResponse />
             </RadzenCard>
@@ -42,6 +48,7 @@
     private string _infomsgs;
     private bool _isNewChat;
     private string _conversation_id;
+    private bool _isLoading;
 
     private HuggingChatUtilitiesService huggingChatUtilitiesService;
 
@@ -51,6 +58,7 @@
         this._isNewChat = true;
         this.huggingChatUtilitiesService = new HuggingChatUtilitiesService();
         this._conversation_id = "";
+        _isLoading = false;
     }
 
 
@@ -58,9 +66,16 @@
     {
         try
         {
+            this._isLoading = true;
+            this.StateHasChanged();
             this._huggingResponse =  "";
             this._infomsgs = "";
 
+
+            string error = "";
+            string id = "";
+            await Task.Run(async () =>
+        {
             if (string.IsNullOrEmpty(this._userQuestion))
             {
                 this._infomsgs = "Insert a Question!";
@@ -72,16 +87,19 @@
             urlBuilder.Append("/");
             urlBuilder.Append(configuration["ApplicationInfo:useHaggingChat"].ToString());
 
-            string error = "";
-            string id = "";
+            
             this._huggingResponse = this.huggingChatUtilitiesService.UseHaggingChat(urlBuilder.ToString(), this._userQuestion, this._isNewChat, out id, out error, _conversation_id);
+        });
+
+           
 
             if (string.IsNullOrEmpty(this._huggingResponse))
             {
                 this._infomsgs = $"Something went wrong in Use Hugging Chat. Error message: {error}";
                 return;
             }
-
+            this._isLoading = false;
+            this.StateHasChanged();
         }
         catch (Exception exc)
         {
