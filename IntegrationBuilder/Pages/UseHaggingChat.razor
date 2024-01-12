@@ -91,12 +91,9 @@
             this._huggingResponse = this.huggingChatUtilitiesService.UseHaggingChat(urlBuilder.ToString(), this._userQuestion, this._isNewChat, out id, out error, _conversation_id);
         });
 
-           
-
             if (string.IsNullOrEmpty(this._huggingResponse))
             {
                 this._infomsgs = $"Something went wrong in Use Hugging Chat. Error message: {error}";
-                return;
             }
             this._isLoading = false;
             this.StateHasChanged();
