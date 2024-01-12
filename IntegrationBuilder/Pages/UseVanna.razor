@@ -66,7 +66,7 @@
                     
                     <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center" Gap="1rem" Class="rz-mt-8 rz-mb-4">
                         <RadzenButton ButtonType="ButtonType.Submit" Size="ButtonSize.Medium" Icon="save" Text="Create/Set Model" />
-                        @if (_isLoading)
+                        @if (_isLoadingConnectToVanna)
                         {
                             <div class="spinner-border" role="status">
                                 <span class="visually-hidden">Loading...</span>
@@ -101,7 +101,13 @@
 
                         <RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="add_circle_outline" class="mt-2 mb-4" Text="Add Table Documentation"
                                       Click="@InsertRowTable" Disabled=@(this._tableDocumentationToInsert != null || this._tableDocumentationToUpdate != null) />
-                                    
+
+                                    @if (_isLoadingTrainWithTables)
+                                    {
+                                        <div class="spinner-border" role="status">
+                                            <span class="visually-hidden">Loading...</span>
+                                        </div>
+                                    }
 
                         <RadzenDataGrid @ref="_tableDDLDocumentationsGrid" AllowAlternatingRows="false" AllowFiltering="true" AllowPaging="true"
                                                     PageSize="3" AllowSorting="true" EditMode="DataGridEditMode.Single" FilterMode="FilterMode.Advanced"
@@ -296,7 +302,9 @@
     private bool _DisabledStep2 = true;
     private bool _DisabledStep3 = true;
     private bool _DisabledStep4 = true;
-    private bool _isLoading;
+
+    private bool _isLoadingConnectToVanna;
+    private bool _isLoadingTrainWithTables;
 
     TabPosition tabPosition = TabPosition.Top;
 
@@ -336,7 +344,8 @@
         _viewDDLDocumentations = new List<DDLDocumentation>();
         _sqlStatementForTrain = "";
         _documentationForTrain = "";
-        _isLoading = false;
+
+        _isLoadingConnectToVanna = false;
 
     }
 
@@ -437,7 +446,7 @@
         this._infomsgs = "";
         try
         {
-            this._isLoading = true;
+            this._isLoadingConnectToVanna = true;
             this.StateHasChanged();
 
             await Task.Run(async () =>
@@ -494,7 +503,7 @@
            }
        });
 
-            this._isLoading = false;
+            this._isLoadingConnectToVanna = false;
             this.StateHasChanged();
 
         }
@@ -651,6 +660,9 @@
     {
         try
         {
+            this._isLoadingTrainWithTables = true;
+            this.StateHasChanged();
+
             this._infomsgs = "";
             if (this._tableDDLDocumentations == null)
             {
@@ -658,32 +670,41 @@
                 return;
             }
 
-            List<string> tableNames = new List<string>();
-            List<string> documentation = new List<string>();
-            foreach (DDLDocumentation d in this._tableDDLDocumentations)
-            {
-                tableNames.Add(d.name);
-                documentation.Add(d.documentation);
-            }
+            await Task.Run(async () =>
+      {
+          List<string> tableNames = new List<string>();
+          List<string> documentation = new List<string>();
+          foreach (DDLDocumentation d in this._tableDDLDocumentations)
+          {
+              tableNames.Add(d.name);
+              documentation.Add(d.documentation);
+          }
 
-            StringBuilder urlBuilder = new StringBuilder();
-            urlBuilder.Append(configuration["ApplicationInfo:vannaMainURL"].ToString());
-            urlBuilder.Append("/");
-            urlBuilder.Append(configuration["ApplicationInfo:trainWithTables"].ToString());
-            string errorMsg = "";
+          StringBuilder urlBuilder = new StringBuilder();
+          urlBuilder.Append(configuration["ApplicationInfo:vannaMainURL"].ToString());
+          urlBuilder.Append("/");
+          urlBuilder.Append(configuration["ApplicationInfo:trainWithTables"].ToString());
+          string errorMsg = "";
 
-            if (this._vannaUtilitiesService.TrainModelWithTables(urlBuilder.ToString(), tableNames.Distinct().ToList(), this._vannaModel.ModelName.ToLower(), this._sqlServerCredentials, out errorMsg))
-            {
-                this._infomsgs = "Train with tables OK. Now will start the training with Documentation!";
-            }
-            else
-            {
-                this._infomsgs = $"Something went wrong in Train with tables. Message: {errorMsg}";
-                return;
-            }
+          if (this._vannaUtilitiesService.TrainModelWithTables(urlBuilder.ToString(), tableNames.Distinct().ToList(), this._vannaModel.ModelName.ToLower(), this._sqlServerCredentials, out errorMsg))
+          {
+              this._infomsgs = "Train with tables OK. Now will start the training with Documentation!";
+          }
+          else
+          {
+              this._infomsgs = $"Something went wrong in Train with tables. Message: {errorMsg}";
+              this._isLoadingTrainWithTables = false;
+              this.StateHasChanged();
+              return;
+          }
 
 
-            TrainWithDocumentation(documentation);
+          TrainWithDocumentation(documentation);
+      });
+
+            this._isLoadingTrainWithTables = false;
+            this.StateHasChanged();
+            
 
         }
         catch (Exception exc)
