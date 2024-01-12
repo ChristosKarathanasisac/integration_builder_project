@@ -259,7 +259,7 @@
                                           Click="@BtnAskVanna" />
                             <RadzenButton ButtonStyle="ButtonStyle.Primary" Disabled="@((string.IsNullOrEmpty(this._vannaResponse))  || (!string.IsNullOrEmpty(this._savedQuery)) )" Icon="done_all" class="mt-2 mb-4" Text="Save Query"
                                           Click="@BtnSaveQuery" />
-                            <RadzenButton ButtonStyle="ButtonStyle.Primary" Disabled="@(string.IsNullOrEmpty(this._savedQuery))" Icon="pageview" class="mt-2 mb-4" Text="Preview Query"
+                            <RadzenButton ButtonStyle="ButtonStyle.Primary" Disabled="@(string.IsNullOrEmpty(this._savedQuery))" Icon="pageview" class="mt-2 mb-4" Text="Preview/Change saved Query"
                                           Click="@BtnShowSavedQuery" />
                             <RadzenColumn Size="12" SizeMD="12">
                                 <RadzenRow Gap="6rem" JustifyContent="JustifyContent.Center">
@@ -269,9 +269,10 @@
                                         <RadzenTextArea Cols="80" Rows="17" @bind-Value=@_userQuestion />
                                     </RadzenCard>
 
+                                    @* User can not modify query from main page after save *@
                                     <RadzenCard Style="width=40%">
                                         <RadzenText TextStyle="TextStyle.Caption" TagName="TagName.H3">Vanna Response</RadzenText>
-                                        <RadzenTextArea Cols="80" Rows="17" @bind-Value=@_vannaResponse />
+                                        <RadzenTextArea ReadOnly="@(!string.IsNullOrEmpty(this._savedQuery))" Cols="80" Rows="17" @bind-Value=@_vannaResponse />
                                     </RadzenCard>
                                 </RadzenRow>
                             </RadzenColumn>
@@ -310,19 +311,27 @@
             <RadzenCard>
                     <RadzenCard Style="width=40%">
                         <RadzenText TextStyle="TextStyle.Caption" TagName="TagName.H3">Query</RadzenText>
-                        <RadzenTextArea ReadOnly="true" Cols="80" Rows="17" @bind-Value=@_savedQuery />
+                        <RadzenTextArea Cols="80" Rows="17" @bind-Value=@_savedQuery Change="RefreshPopup" />
                     </RadzenCard>
                     <RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="build" class="mt-2 mb-4" Text="Clear"
-                                  Click="@BtnClearSavedQuery" />
-                    <RadzenButton Text="ΑΚΥΡΩΣΗ" Click="() => ds.Close(false)" ButtonStyle="ButtonStyle.Light" />
+                                  Click="@BtnClearSavedQuery" Disabled="@(string.IsNullOrEmpty(this._savedQuery))" />
+                    <RadzenButton Text="Exit" Click="() => ds.Close(false)" ButtonStyle="ButtonStyle.Light" />
             </RadzenCard>
                 
             </RadzenStack>
         </RadzenStack>
     </RadzenStack>
     , new DialogOptions() { Width = $"{50}%", Height = $"{70}%" });
+    }
+
+    private void RefreshPopup()
+    {
+        //if (!string.IsNullOrEmpty(this._savedQuery)) { return; }
+        this.DialogService.Refresh();
+    }
+
 }
-}
+
 
 @code {
 
@@ -812,7 +821,9 @@
     async Task BtnClearSavedQuery()
     {
         this._savedQuery = "";
-        this.StateHasChanged();
+        InvokeAsync(StateHasChanged);
+        DialogService.Refresh();
+        //this.StateHasChanged();
     }
 
 
