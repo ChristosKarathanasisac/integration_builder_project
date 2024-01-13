@@ -217,10 +217,17 @@
                     </RadzenCard>
                             </RadzenTabsItem>
                          <RadzenTabsItem Text="Train With SQL">
-                                
+                              <RadzenCard class="rz-background-color-base-900 rz-color-on-info-lighter rz-p-2">  
                                 <RadzenCard>
                                     <RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="build" class="mt-2 mb-4" Text="Train Model"
                                                   Click="@BtnTrainWithSQL" />
+
+                                    @if (_isLoadingTrainWithSql)
+                                    {
+                                        <div class="spinner-border" role="status">
+                                            <span class="visually-hidden">Loading...</span>
+                                        </div>
+                                    }
 
                                     <RadzenText TextStyle="TextStyle.DisplayH6" TagName="TagName.H6" class="mb-0">Train With SQL</RadzenText>
                                     <RadzenRow Gap="2rem" JustifyContent="JustifyContent.Left">
@@ -232,11 +239,19 @@
                                         </RadzenColumn>
                                     </RadzenRow>
                                 </RadzenCard>
+                                </RadzenCard>
                             </RadzenTabsItem>
                          <RadzenTabsItem Text="Train With Documentation">
-                                <RadzenCard>
+                                <RadzenCard class="rz-background-color-base-900 rz-color-on-info-lighter rz-p-2">
                                     <RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="build" class="mt-2 mb-4" Text="Train Model"
                                                   Click="@BtnTrainWithDocumentation" />
+                                    @if (_isLoadingTrainWithDocumentation)
+                                    {
+                                        <div class="spinner-border" role="status">
+                                            <span class="visually-hidden">Loading...</span>
+                                        </div>
+                                    }
+
 
                                     <RadzenText TextStyle="TextStyle.DisplayH6" TagName="TagName.H6" class="mb-0">Train With Documentation</RadzenText>
                                     <RadzenRow Gap="2rem" JustifyContent="JustifyContent.Left">
@@ -311,6 +326,8 @@
     private bool _isLoadingConnectToVanna;
     private bool _isLoadingTrainWithTables;
     private bool _isLoadingTrainWithViews;
+    private bool _isLoadingTrainWithSql;
+    private bool _isLoadingTrainWithDocumentation;
 
     TabPosition tabPosition = TabPosition.Top;
 
@@ -354,6 +371,7 @@
         _isLoadingConnectToVanna = false;
         _isLoadingTrainWithTables = false;
         _isLoadingTrainWithViews = false;
+        _isLoadingTrainWithSql = false;
 
     }
 
@@ -706,7 +724,6 @@
               return;
           }
 
-
           TrainWithDocumentation(documentation);
       });
 
@@ -730,7 +747,11 @@
         try
         {
             this._infomsgs = "";
+            this._isLoadingTrainWithDocumentation = true;
+            this.StateHasChanged();
 
+        await Task.Run(async () =>
+        {
             if (string.IsNullOrEmpty(this._documentationForTrain))
             {
                 this._infomsgs = "Add some documentation!";
@@ -740,10 +761,17 @@
             List<string> tmp = new List<string>();
             tmp.Add(this._documentationForTrain);
             TrainWithDocumentation(tmp);
+
+        });
+
+            this._isLoadingTrainWithDocumentation = false;
+            this.StateHasChanged();
         }
         catch (Exception exc)
         {
             this._infomsgs = $"Exception in BtnTrainWithDocumentation. Exception message: {exc.Message}";
+            this._isLoadingTrainWithDocumentation = false;
+            this.StateHasChanged();
         }
 
     }
@@ -841,6 +869,7 @@
             return;
         }
     }
+    
     async Task BtnTrainWithSQL()
     {
         try
@@ -853,6 +882,11 @@
                 return;
             }
 
+            this._isLoadingTrainWithSql = true;
+            this.StateHasChanged();
+
+            await Task.Run(async () =>
+        {
             StringBuilder urlBuilder = new StringBuilder();
             urlBuilder.Append(configuration["ApplicationInfo:vannaMainURL"].ToString());
             urlBuilder.Append("/");
@@ -862,21 +896,31 @@
             {
                 this._infomsgs += "\n" + $"Problem in BtnTrainWithSQL {this._sqlStatementForTrain.Trim()}.\n Exception message: {error}";
             }
-            else 
+            else
             {
-                this._infomsgs +=  $"Training with SQL Ok";
+                this._infomsgs += $"Training with SQL Ok";
             }
+        });
+
+            this._isLoadingTrainWithSql = false;
+            this.StateHasChanged();
+            
         }
         catch (Exception exc)
         {
             _infomsgs = $"Exception in BtnTrainWithSQL. Exception message: {exc.Message}";
+            this._isLoadingTrainWithSql = false;
+            this.StateHasChanged();
         }
     }
-    private void TrainWithDocumentation(List<string> documentation)
+
+    async Task TrainWithDocumentation(List<string> documentation)
     {
         try
         {
             this._infomsgs = "";
+
+
 
             StringBuilder urlBuilder = new StringBuilder();
             urlBuilder.Append(configuration["ApplicationInfo:vannaMainURL"].ToString());
@@ -892,7 +936,9 @@
                     return;
                 }
             }
+
             this._infomsgs += "\n" + "Train with Documentation Ok";
+
         }
         catch (Exception exc)
         {
