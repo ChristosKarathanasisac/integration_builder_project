@@ -156,6 +156,7 @@
                     </RadzenCard>
                             </RadzenTabsItem>
                          <RadzenTabsItem Text="Train With Views">
+                              <RadzenCard class="rz-background-color-base-900 rz-color-on-info-lighter rz-p-2">
                                 <RadzenText TextStyle="TextStyle.DisplayH6" TagName="TagName.H6" class="mb-0">Train With Views</RadzenText>
 
                                 <RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="build" class="mt-2 mb-4" Text="Train Model"
@@ -163,7 +164,12 @@
 
                                 <RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="add_circle_outline" class="mt-2 mb-4" Text="Add View Documentation"
                                               Click="@InsertRowView" Disabled=@(this._viewDocumentationToInsert != null || this._viewDocumentationToUpdate != null) />
-
+                                @if (_isLoadingTrainWithViews)
+                                {
+                                    <div class="spinner-border" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                }
 
                                 <RadzenDataGrid @ref="_viewDDLDocumentationsGrid" AllowAlternatingRows="false" AllowFiltering="true" AllowPaging="true"
                                                 PageSize="3" AllowSorting="true" EditMode="DataGridEditMode.Single" FilterMode="FilterMode.Advanced"
@@ -208,7 +214,6 @@
                                         </RadzenDataGridColumn>
                                     </Columns>
                                 </RadzenDataGrid>
-                            <RadzenCard>
                     </RadzenCard>
                             </RadzenTabsItem>
                          <RadzenTabsItem Text="Train With SQL">
@@ -305,6 +310,7 @@
 
     private bool _isLoadingConnectToVanna;
     private bool _isLoadingTrainWithTables;
+    private bool _isLoadingTrainWithViews;
 
     TabPosition tabPosition = TabPosition.Top;
 
@@ -346,6 +352,8 @@
         _documentationForTrain = "";
 
         _isLoadingConnectToVanna = false;
+        _isLoadingTrainWithTables = false;
+        _isLoadingTrainWithViews = false;
 
     }
 
@@ -710,6 +718,9 @@
         catch (Exception exc)
         {
             this._infomsgs = $"Exception in BtnTrainWithTables. Exception message: {exc.Message}";
+            this._isLoadingTrainWithTables = false;
+            this.StateHasChanged();
+
             return;
         }
     }
@@ -741,6 +752,7 @@
     {
         try
         {
+           
             this._infomsgs = "";
             this._vannaResponse = "";
 
@@ -782,6 +794,11 @@
                 return;
             }
 
+            this._isLoadingTrainWithViews = true;
+            this.StateHasChanged();
+
+            await Task.Run(async () =>
+        {
             List<string> viewNames = new List<string>();
             List<string> documentation = new List<string>();
             foreach (DDLDocumentation d in this._viewDDLDocumentations)
@@ -803,14 +820,24 @@
             else
             {
                 this._infomsgs = $"Something went wrong in Train with views. Message: {errorMsg}";
+                this._isLoadingTrainWithViews = false;
+                this.StateHasChanged();
                 return;
             }
 
             TrainWithDocumentation(documentation);
+        });
+
+
+            this._isLoadingTrainWithViews = false;
+            this.StateHasChanged();
+           
         }
         catch (Exception exc)
         {
             this._infomsgs = $"Exception in BtnTrainWithViews. Exception message: {exc.Message}";
+            this._isLoadingTrainWithViews = false;
+            this.StateHasChanged();
             return;
         }
     }
