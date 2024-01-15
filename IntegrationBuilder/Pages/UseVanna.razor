@@ -279,10 +279,16 @@
             </RadzenCard>
         </RadzenStepsItem>
         <RadzenStepsItem Text="Ask Questions" Disabled="@_DisabledStep4">
-            <RadzenCard>
+            <RadzenCard class="rz-background-color-base-900 rz-color-on-info-lighter rz-p-2">
                 <RadzenText TextStyle="TextStyle.DisplayH6" TagName="TagName.H6" class="mb-0">Ask Questions</RadzenText>
                 <RadzenButton  ButtonStyle="ButtonStyle.Primary" Icon="build" class="mt-2 mb-4" Text="Ask Vanna"
                               Click="@BtnAskVanna" />
+                @if (_isLoadingAskQuestions)
+                {
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                }
                 <RadzenColumn Size="12" SizeMD="12"  >
                     <RadzenRow Gap="6rem" JustifyContent="JustifyContent.Center">
 
@@ -328,6 +334,7 @@
     private bool _isLoadingTrainWithViews;
     private bool _isLoadingTrainWithSql;
     private bool _isLoadingTrainWithDocumentation;
+    private bool _isLoadingAskQuestions;
 
     TabPosition tabPosition = TabPosition.Top;
 
@@ -741,7 +748,6 @@
             return;
         }
     }
-
     async Task BtnTrainWithDocumentation()
     {
         try
@@ -775,7 +781,6 @@
         }
 
     }
-
     async Task BtnAskVanna() 
     {
         try
@@ -790,26 +795,38 @@
                 return;
             }
 
+            this._isLoadingAskQuestions = true;
+            this.StateHasChanged();
+
+            await Task.Run(async () =>
+        {
             StringBuilder urlBuilder = new StringBuilder();
             urlBuilder.Append(configuration["ApplicationInfo:vannaMainURL"].ToString());
             urlBuilder.Append("/");
             urlBuilder.Append(configuration["ApplicationInfo:generateSQL"].ToString());
 
             string error = "";
-            this._vannaResponse = this._vannaUtilitiesService.GenerateSQL(urlBuilder.ToString(),this._userQuestion,this._vannaModel.ModelName.ToLower(),out error);
+            this._vannaResponse = this._vannaUtilitiesService.GenerateSQL(urlBuilder.ToString(), this._userQuestion, this._vannaModel.ModelName.ToLower(), out error);
             if (string.IsNullOrEmpty(this._vannaResponse))
             {
                 this._infomsgs = $"Something went wrong in Vanna Generate SQL. Error message: {error}";
+                this._isLoadingAskQuestions = false;
+                this.StateHasChanged();
                 return;
             }
+        });
+
+            this._isLoadingAskQuestions = false;
+            this.StateHasChanged();
 
         }
         catch (Exception exc)
         {
             _infomsgs = $"Exception in BtnAskVanna {exc.Message}.";
+            this._isLoadingAskQuestions = false;
+            this.StateHasChanged();
         }
     }
-
     async Task BtnTrainWithViews()
     {
         try
@@ -869,7 +886,6 @@
             return;
         }
     }
-    
     async Task BtnTrainWithSQL()
     {
         try
@@ -913,7 +929,6 @@
             this.StateHasChanged();
         }
     }
-
     async Task TrainWithDocumentation(List<string> documentation)
     {
         try
