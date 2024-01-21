@@ -15,10 +15,10 @@
 
   <ItemGroup>
     <Reference Include="JsonToCSharpClasses">
-      <HintPath>..\..\..\Users\adp4\Downloads\JsonToCSharp\JsonToCSharp\JsonToCSharpCls\JsonToCSharpClasses\JsonToCSharpClasses\bin\Debug\net7.0\JsonToCSharpClasses.dll</HintPath>
+      <HintPath>..\Lib\JsonToCSharpClasses.dll</HintPath>
     </Reference>
     <Reference Include="Xamasoft.JsonClassGenerator">
-      <HintPath>..\..\..\Users\adp4\Downloads\JsonToCSharp\JsonToCSharp\JsonToCSharpCls\JsonToCSharpClasses\JsonToCSharpClasses\bin\Debug\net7.0\Xamasoft.JsonClassGenerator.dll</HintPath>
+      <HintPath>..\Lib\Xamasoft.JsonClassGenerator.dll</HintPath>
     </Reference>
   </ItemGroup>
 
