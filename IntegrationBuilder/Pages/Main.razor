@@ -292,7 +292,7 @@
         <RadzenTabsItem Text="Get Classes from Json" Disabled="@(string.IsNullOrEmpty(this._savedQuery))">
             <RadzenText TextStyle="TextStyle.H5" TagName="TagName.H3" class="rz-my-6">2. Hello From Step 2</RadzenText>
         </RadzenTabsItem>
-        <RadzenTabsItem Text="Create mapping" Disabled="@(_step3disabled)">
+        <RadzenTabsItem Text="Create mapping" Disabled="@(string.IsNullOrEmpty(this._savedQuery))">
             <RadzenText TextStyle="TextStyle.H5" TagName="TagName.H3" class="rz-my-6">2. Hello From Step 3</RadzenText>
         </RadzenTabsItem>
     </Tabs>
@@ -332,57 +332,32 @@
 
 }
 
-
 @code {
 
-    private bool _step3disabled;
+    //This should be replaced
+    private bool _isLoadingConnectToVanna;
+    private bool _isLoadingTrainWithTables;
+    private bool _isLoadingTrainWithViews;
+    private bool _isLoadingTrainWithSql;
+    private bool _isLoadingTrainWithDocumentation;
+    private bool _isLoadingAskQuestions;
 
-    protected override async Task OnInitializedAsync()
-    {
-        await base.OnInitializedAsync();
-        this._step3disabled = true;
-
-        _sqlServerCredentials = new Credentials();
-        _vannaModel = new VannaModel();
-        _vannaUtilitiesService = new VannaUtilitiesService();
-        _tableDDLDocumentations = new List<DDLDocumentation>();
-        _viewDDLDocumentations = new List<DDLDocumentation>();
-        _sqlStatementForTrain = "";
-        _documentationForTrain = "";
-        _savedQuery = "";
-
-    }
-
-    void OnChange(int index)
-    {
-        //console.Log($"Step with index {index} was selected.");
-
-        if (index == 1)
-        {
-         
-        }
-        else if (index == 2)
-        {
-            
-        }
-    }
 }
-
 
 @code {
 
     private Credentials _sqlServerCredentials;
     private VannaModel _vannaModel;
 
-    private VannaUtilitiesService _vannaUtilitiesService;
+    // VannaUtilitiesService _vannaUtilitiesService;
 
-    private string _infomsgs;
-    private bool _DisabledStep2 = true;
-    private bool _DisabledStep3 = true;
-    private bool _DisabledStep4 = true;
-    private string _savedQuery;
+    // private string _infomsgs;
+    // private bool _DisabledStep2 = true;
+    // private bool _DisabledStep3 = true;
+    // private bool _DisabledStep4 = true;
+    // private string _savedQuery;
 
-    TabPosition tabPosition = TabPosition.Top;
+    //TabPosition tabPosition = TabPosition.Top;
 
     private List<string> _allTables;
     //private List<string> _selectedTables;
@@ -467,18 +442,18 @@
         }
     }
 
-    private void OnChangeStep(int index)
-    {
-        this._infomsgs = String.Empty;
-        if (index == 1)
-        {
+    // private void OnChangeStep(int index)
+    // {
+    //     this._infomsgs = String.Empty;
+    //     if (index == 1)
+    //     {
 
-        }
-        else if (index == 2)
-        {
+    //     }
+    //     else if (index == 2)
+    //     {
 
-        }
-    }
+    //     }
+    // }
 
     //Step 1 Code
     private void CheckConnection(Credentials arg)
@@ -988,3 +963,5 @@
     //Step 4
     //
 }
+
+
