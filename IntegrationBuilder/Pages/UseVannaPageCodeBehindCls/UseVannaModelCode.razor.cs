@@ -37,7 +37,7 @@ namespace IntegrationBuilder.Pages
             this._infomsgs = "";
             try
             {
-                this._isLoadingConnectToVanna = true;
+                this._loadignBarValue =100;
                 this.StateHasChanged();
                 await Task.Run(async () =>
                 {
@@ -89,7 +89,7 @@ namespace IntegrationBuilder.Pages
                         }
                     }
                 });
-                this._isLoadingConnectToVanna = false;
+                this._loadignBarValue = 0;
                 this.StateHasChanged();
             }
             catch (Exception exc)

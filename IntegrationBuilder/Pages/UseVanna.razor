@@ -5,8 +5,9 @@
 @using System.Text;
 @inject IConfiguration configuration
 
+<RadzenProgressBar Value="@this._loadignBarValue" ShowValue="false" Mode="ProgressBarMode.Indeterminate" />
 <RadzenSteps Change=@OnChangeStep>
-    <Steps>
+     <Steps>
         <RadzenStepsItem Text="Connect To SQL Server">
             <RadzenTemplateForm TItem="Credentials"  Data=@_sqlServerCredentials Submit=@CheckConnection>
                 
@@ -66,12 +67,6 @@
                     
                     <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center" Gap="1rem" Class="rz-mt-8 rz-mb-4">
                         <RadzenButton ButtonType="ButtonType.Submit" Size="ButtonSize.Medium" Icon="save" Text="Create/Set Model" />
-                        @if (_isLoadingConnectToVanna)
-                        {
-                            <div class="spinner-border" role="status">
-                                <span class="visually-hidden">Loading...</span>
-                            </div>
-                        }
                     </RadzenStack>
                     <RadzenRow Gap="2rem" JustifyContent="JustifyContent.Center">
                         <RadzenColumn Size="12" SizeMD="6">
@@ -101,14 +96,6 @@
 
                         <RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="add_circle_outline" class="mt-2 mb-4" Text="Add Table Documentation"
                                       Click="@InsertRowTable" Disabled=@(this._tableDocumentationToInsert != null || this._tableDocumentationToUpdate != null) />
-
-                                    @if (_isLoadingTrainWithTables)
-                                    {
-                                        <div class="spinner-border" role="status">
-                                            <span class="visually-hidden">Loading...</span>
-                                        </div>
-                                    }
-
                         <RadzenDataGrid @ref="_tableDDLDocumentationsGrid" AllowAlternatingRows="false" AllowFiltering="true" AllowPaging="true"
                                                     PageSize="3" AllowSorting="true" EditMode="DataGridEditMode.Single" FilterMode="FilterMode.Advanced"
                                                     FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
@@ -164,13 +151,6 @@
 
                                 <RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="add_circle_outline" class="mt-2 mb-4" Text="Add View Documentation"
                                               Click="@InsertRowView" Disabled=@(this._viewDocumentationToInsert != null || this._viewDocumentationToUpdate != null) />
-                                @if (_isLoadingTrainWithViews)
-                                {
-                                    <div class="spinner-border" role="status">
-                                        <span class="visually-hidden">Loading...</span>
-                                    </div>
-                                }
-
                                 <RadzenDataGrid @ref="_viewDDLDocumentationsGrid" AllowAlternatingRows="false" AllowFiltering="true" AllowPaging="true"
                                                 PageSize="3" AllowSorting="true" EditMode="DataGridEditMode.Single" FilterMode="FilterMode.Advanced"
                                                 FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
@@ -221,14 +201,6 @@
                                 <RadzenCard>
                                     <RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="build" class="mt-2 mb-4" Text="Train Model"
                                                   Click="@BtnTrainWithSQL" />
-
-                                    @if (_isLoadingTrainWithSql)
-                                    {
-                                        <div class="spinner-border" role="status">
-                                            <span class="visually-hidden">Loading...</span>
-                                        </div>
-                                    }
-
                                     <RadzenText TextStyle="TextStyle.DisplayH6" TagName="TagName.H6" class="mb-0">Train With SQL</RadzenText>
                                     <RadzenRow Gap="2rem" JustifyContent="JustifyContent.Left">
                                         <RadzenColumn Size="12" SizeMD="8">
@@ -245,14 +217,6 @@
                                 <RadzenCard class="rz-background-color-base-900 rz-color-on-info-lighter rz-p-2">
                                     <RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="build" class="mt-2 mb-4" Text="Train Model"
                                                   Click="@BtnTrainWithDocumentation" />
-                                    @if (_isLoadingTrainWithDocumentation)
-                                    {
-                                        <div class="spinner-border" role="status">
-                                            <span class="visually-hidden">Loading...</span>
-                                        </div>
-                                    }
-
-
                                     <RadzenText TextStyle="TextStyle.DisplayH6" TagName="TagName.H6" class="mb-0">Train With Documentation</RadzenText>
                                     <RadzenRow Gap="2rem" JustifyContent="JustifyContent.Left">
                                         <RadzenColumn Size="12" SizeMD="8">
@@ -283,12 +247,6 @@
                 <RadzenText TextStyle="TextStyle.DisplayH6" TagName="TagName.H6" class="mb-0">Ask Questions</RadzenText>
                 <RadzenButton  ButtonStyle="ButtonStyle.Primary" Icon="build" class="mt-2 mb-4" Text="Ask Vanna"
                               Click="@BtnAskVanna" />
-                @if (_isLoadingAskQuestions)
-                {
-                    <div class="spinner-border" role="status">
-                        <span class="visually-hidden">Loading...</span>
-                    </div>
-                }
                 <RadzenColumn Size="12" SizeMD="12"  >
                     <RadzenRow Gap="6rem" JustifyContent="JustifyContent.Center">
 
@@ -320,12 +278,14 @@
 @code {
 
     //This should be replaced
-    private bool _isLoadingConnectToVanna;
-    private bool _isLoadingTrainWithTables;
-    private bool _isLoadingTrainWithViews;
-    private bool _isLoadingTrainWithSql;
-    private bool _isLoadingTrainWithDocumentation;
-    private bool _isLoadingAskQuestions;
+    // private bool _isLoadingConnectToVanna;
+    // private bool _isLoadingTrainWithTables;
+    // private bool _isLoadingTrainWithViews;
+    // private bool _isLoadingTrainWithSql;
+    // private bool _isLoadingTrainWithDocumentation;
+    // private bool _isLoadingAskQuestions;
+    // private int _loadigBarValue;
+    
 
 }
 

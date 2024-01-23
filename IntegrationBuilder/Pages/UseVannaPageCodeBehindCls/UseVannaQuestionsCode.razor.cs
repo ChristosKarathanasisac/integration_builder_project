@@ -43,7 +43,7 @@ namespace IntegrationBuilder.Pages
                     return;
                 }
 
-                this._isLoadingAskQuestions = true;
+                this._loadignBarValue = 100;
                 this.StateHasChanged();
                 await Task.Run(async () =>
                 {
@@ -56,18 +56,18 @@ namespace IntegrationBuilder.Pages
                     if (string.IsNullOrEmpty(this._vannaResponse))
                     {
                         this._infomsgs = $"Something went wrong in Vanna Generate SQL. Error message: {error}";
-                        this._isLoadingAskQuestions = false;
+                        this._loadignBarValue = 0;
                         this.StateHasChanged();
                         return;
                     }
                 });
-                this._isLoadingAskQuestions = false;
+                this._loadignBarValue = 0;
                 this.StateHasChanged();
             }
             catch (Exception exc)
             {
                 _infomsgs = $"Exception in BtnAskVanna {exc.Message}.";
-                this._isLoadingAskQuestions = false;
+                this._loadignBarValue = 0;
                 this.StateHasChanged();
             }
         }

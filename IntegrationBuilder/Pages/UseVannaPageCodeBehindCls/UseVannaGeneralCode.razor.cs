@@ -32,6 +32,7 @@ namespace IntegrationBuilder.Pages
         private bool _DisabledStep2 = true;
         private bool _DisabledStep3 = true;
         private bool _DisabledStep4 = true;
+        private int _loadignBarValue;
         //---------------------------------
         //Functions
         //---------------------------------
@@ -45,10 +46,12 @@ namespace IntegrationBuilder.Pages
             _viewDDLDocumentations = new List<DDLDocumentation>();
             _sqlStatementForTrain = "";
             _documentationForTrain = "";
-            _isLoadingConnectToVanna = false;
-            _isLoadingTrainWithTables = false;
-            _isLoadingTrainWithViews = false;
-            _isLoadingTrainWithSql = false;
+            //_isLoadingConnectToVanna = false;
+            //_isLoadingTrainWithTables = false;
+            //_isLoadingTrainWithViews = false;
+            //_isLoadingTrainWithSql = false;
+            //Initialize the progress bar
+            this._loadignBarValue = 0;
         }
 
         // void OnChangeTab(int index)

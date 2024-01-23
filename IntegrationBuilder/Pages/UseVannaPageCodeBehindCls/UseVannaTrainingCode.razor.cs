@@ -232,7 +232,7 @@ namespace IntegrationBuilder.Pages
         {
             try
             {
-                this._isLoadingTrainWithTables = true;
+                this._loadignBarValue = 100;
                 this.StateHasChanged();
                 // InvokeAsync(StateHasChanged);
                 this._infomsgs = "";
@@ -264,20 +264,20 @@ namespace IntegrationBuilder.Pages
                     else
                     {
                         this._infomsgs = $"Something went wrong in Train with tables. Message: {errorMsg}";
-                        this._isLoadingTrainWithTables = false;
+                        this._loadignBarValue = 0;
                         this.StateHasChanged();
                         return;
                     }
 
                     await TrainWithDocumentation(documentation);
                 });
-                this._isLoadingTrainWithTables = false;
+                this._loadignBarValue = 0;
                 this.StateHasChanged();
             }
             catch (Exception exc)
             {
                 this._infomsgs = $"Exception in BtnTrainWithTables. Exception message: {exc.Message}";
-                this._isLoadingTrainWithTables = false;
+                this._loadignBarValue = 0;
                 this.StateHasChanged();
                 return;
             }
@@ -288,7 +288,7 @@ namespace IntegrationBuilder.Pages
             try
             {
                 this._infomsgs = "";
-                this._isLoadingTrainWithDocumentation = true;
+                this._loadignBarValue = 100;
                 this.StateHasChanged();
                 await Task.Run(async () =>
                 {
@@ -302,13 +302,13 @@ namespace IntegrationBuilder.Pages
                     tmp.Add(this._documentationForTrain);
                     TrainWithDocumentation(tmp);
                 });
-                this._isLoadingTrainWithDocumentation = false;
+                this._loadignBarValue = 0;
                 this.StateHasChanged();
             }
             catch (Exception exc)
             {
                 this._infomsgs = $"Exception in BtnTrainWithDocumentation. Exception message: {exc.Message}";
-                this._isLoadingTrainWithDocumentation = false;
+                this._loadignBarValue = 0;
                 this.StateHasChanged();
             }
         }
@@ -324,7 +324,7 @@ namespace IntegrationBuilder.Pages
                     return;
                 }
 
-                this._isLoadingTrainWithViews = true;
+                this._loadignBarValue = 100;
                 this.StateHasChanged();
                 await Task.Run(async () =>
                 {
@@ -348,20 +348,20 @@ namespace IntegrationBuilder.Pages
                     else
                     {
                         this._infomsgs = $"Something went wrong in Train with views. Message: {errorMsg}";
-                        this._isLoadingTrainWithViews = false;
+                        this._loadignBarValue = 0;
                         this.StateHasChanged();
                         return;
                     }
 
                     TrainWithDocumentation(documentation);
                 });
-                this._isLoadingTrainWithViews = false;
+                this._loadignBarValue = 0;
                 this.StateHasChanged();
             }
             catch (Exception exc)
             {
                 this._infomsgs = $"Exception in BtnTrainWithViews. Exception message: {exc.Message}";
-                this._isLoadingTrainWithViews = false;
+                this._loadignBarValue = 0;
                 this.StateHasChanged();
                 return;
             }
@@ -378,7 +378,7 @@ namespace IntegrationBuilder.Pages
                     return;
                 }
 
-                this._isLoadingTrainWithSql = true;
+                this._loadignBarValue = 100;
                 this.StateHasChanged();
                 await Task.Run(async () =>
                 {
@@ -396,13 +396,13 @@ namespace IntegrationBuilder.Pages
                         this._infomsgs += $"Training with SQL Ok";
                     }
                 });
-                this._isLoadingTrainWithSql = false;
+                this._loadignBarValue = 0;
                 this.StateHasChanged();
             }
             catch (Exception exc)
             {
                 _infomsgs = $"Exception in BtnTrainWithSQL. Exception message: {exc.Message}";
-                this._isLoadingTrainWithSql = false;
+                this._loadignBarValue = 0;
                 this.StateHasChanged();
             }
         }
