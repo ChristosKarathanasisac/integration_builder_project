@@ -90,7 +90,7 @@
                         <RadzenCard>
                             @if ((this._allTables != null) && (_allViews != null))
                             {
-                                <RadzenTabs Change=@OnChangeTab TabPosition="@tabPosition" RenderMode="TabRenderMode.Client">
+                                <RadzenTabs TabPosition="@tabPosition" RenderMode="TabRenderMode.Client">
                                     <Tabs>
                                         <RadzenTabsItem Text="Train With Tables">
                                             <RadzenCard class="rz-background-color-base-900 rz-color-on-info-lighter rz-p-2">
@@ -345,81 +345,83 @@
 }
 
 @code {
-     private string _userQuestion = "";
-     private string _vannaResponse = "";
+    //  private string _userQuestion = "";
+    //  private string _vannaResponse = "";
 
-    void OnChangeTab(int index)
-    {
-        //console.Log($"Tab with index {index} was selected.");
-    }
+    // void OnChangeTab(int index)
+    // {
+    //     //console.Log($"Tab with index {index} was selected.");
+    // }
 
    
 
-    async Task BtnSaveQuery()
-    {
-        this._infomsgs = "";
-        if (string.IsNullOrEmpty(this._vannaResponse))
-        {
+    // async Task BtnSaveQuery()
+    // {
+    //     this._infomsgs = "";
+    //     if (string.IsNullOrEmpty(this._vannaResponse))
+    //     {
 
-            this._infomsgs = "Vanna response text box is empty!";
-            return;
-        }
-        this._savedQuery = this._vannaResponse.ToString();
-    }
+    //         this._infomsgs = "Vanna response text box is empty!";
+    //         return;
+    //     }
+    //     this._savedQuery = this._vannaResponse.ToString();
+    // }
 
-    async Task BtnShowSavedQuery()
-    {
-        this._infomsgs = "";
-        if(string.IsNullOrEmpty(this._vannaResponse))
-        {
+    // async Task BtnShowSavedQuery()
+    // {
+    //     this._infomsgs = "";
+    //     if(string.IsNullOrEmpty(this._vannaResponse))
+    //     {
 
-            this._infomsgs = "Vanna response text box is empty!";
-            return;
-        }
-        await ShowQueryPopup();
-    }
+    //         this._infomsgs = "Vanna response text box is empty!";
+    //         return;
+    //     }
+    //     await ShowQueryPopup();
+    // }
 
-    async Task BtnClearSavedQuery()
-    {
-        this._savedQuery = "";
-        InvokeAsync(StateHasChanged);
-        DialogService.Refresh();
-        //this.StateHasChanged();
-    }
+    // async Task BtnClearSavedQuery()
+    // {
+    //     this._savedQuery = "";
+    //     InvokeAsync(StateHasChanged);
+    //     DialogService.Refresh();
+    //     //this.StateHasChanged();
+    // }
 
-    async Task BtnAskVanna()
-    {
-        try
-        {
-            this._infomsgs = "";
-            this._vannaResponse = "";
+    // async Task BtnAskVanna()
+    // {
+    //     try
+    //     {
+    //         this._infomsgs = "";
+    //         this._vannaResponse = "";
 
-            if (string.IsNullOrEmpty(this._userQuestion))
-            {
-                this._infomsgs = "Insert a Question!";
-                return;
-            }
+    //         if (string.IsNullOrEmpty(this._userQuestion))
+    //         {
+    //             this._infomsgs = "Insert a Question!";
+    //             return;
+    //         }
 
-            StringBuilder urlBuilder = new StringBuilder();
-            urlBuilder.Append(configuration["ApplicationInfo:vannaMainURL"].ToString());
-            urlBuilder.Append("/");
-            urlBuilder.Append(configuration["ApplicationInfo:generateSQL"].ToString());
+    //         StringBuilder urlBuilder = new StringBuilder();
+    //         urlBuilder.Append(configuration["ApplicationInfo:vannaMainURL"].ToString());
+    //         urlBuilder.Append("/");
+    //         urlBuilder.Append(configuration["ApplicationInfo:generateSQL"].ToString());
 
-            string error = "";
-            this._vannaResponse = this._vannaUtilitiesService.GenerateSQL(urlBuilder.ToString(), this._userQuestion, this._vannaModel.ModelName.ToLower(), out error);
-            if (string.IsNullOrEmpty(this._vannaResponse))
-            {
-                this._infomsgs = $"Something went wrong in Vanna Generate SQL. Error message: {error}";
-                return;
-            }
+    //         string error = "";
+    //         this._vannaResponse = this._vannaUtilitiesService.GenerateSQL(urlBuilder.ToString(), this._userQuestion, this._vannaModel.ModelName.ToLower(), out error);
+    //         if (string.IsNullOrEmpty(this._vannaResponse))
+    //         {
+    //             this._infomsgs = $"Something went wrong in Vanna Generate SQL. Error message: {error}";
+    //             return;
+    //         }
 
-        }
-        catch (Exception exc)
-        {
-            _infomsgs = $"Exception in BtnAskVanna {exc.Message}.";
-        }
-    }
+    //     }
+    //     catch (Exception exc)
+    //     {
+    //         _infomsgs = $"Exception in BtnAskVanna {exc.Message}.";
+    //     }
+    // }
 
 }
+
+
 
 
