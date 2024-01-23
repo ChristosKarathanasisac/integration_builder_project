@@ -125,7 +125,6 @@ namespace IntegrationBuilder.VannaAIUtilities
                 ResponseWithObj oResponse = new ResponseWithObj();
                 oResponse = JsonConvert.DeserializeObject<ResponseWithObj>(sresult);
 
-
                 if (oResponse.success == true)
                 {
                     return true;

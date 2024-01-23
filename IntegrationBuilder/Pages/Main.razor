@@ -3,6 +3,9 @@
 @using IntegrationBuilder.VannaAIUtilities;
 @using Microsoft.EntityFrameworkCore
 @using System.Text;
+@using Newtonsoft.Json
+@using Newtonsoft.Json.Linq
+@using Xamasoft.JsonClassGenerator
 @inject DialogService DialogService
 @inject IJSRuntime JS
 @page "/main"
@@ -290,7 +293,34 @@
             </RadzenSteps>
         </RadzenTabsItem>
         <RadzenTabsItem Text="Get Classes from Json" Disabled="@(string.IsNullOrEmpty(this._savedQuery))">
-            <RadzenText TextStyle="TextStyle.H5" TagName="TagName.H3" class="rz-my-6">2. Hello From Step 2</RadzenText>
+            <RadzenCard>
+                <RadzenText TextStyle="TextStyle.DisplayH6" TagName="TagName.H6" class="mb-0">Create c# classes</RadzenText>
+                <RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="build" class="mt-2 mb-4" Text="Get Classes"
+                              Click="@GetClasses" />
+
+                <RadzenColumn Size="12" SizeMD="12">
+                    <RadzenRow Gap="6rem" JustifyContent="JustifyContent.Center">
+
+                        <RadzenCard Style="width=40%">
+                            <RadzenText TextStyle="TextStyle.Caption" TagName="TagName.H3">Json Input</RadzenText>
+                            <RadzenTextArea Cols="80" Rows="17" @bind-Value=@_inputJson />
+                        </RadzenCard>
+
+                        <RadzenCard Style="width=40%">
+                            <RadzenText TextStyle="TextStyle.Caption" TagName="TagName.H3">C# Classes</RadzenText>
+                            <RadzenTextArea Cols="80" Rows="17" @bind-Value=@_cSharpClasses />
+                        </RadzenCard>
+                    </RadzenRow>
+                </RadzenColumn>
+                <RadzenRow Gap="2rem" JustifyContent="JustifyContent.Center">
+                    <RadzenColumn Size="12" SizeMD="6">
+                        <RadzenCard>
+                            <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Info Log</RadzenText>
+                            <RadzenTextArea Rows="4" Disabled="true" @bind-Value=@_infomsgs class="w-100" />
+                        </RadzenCard>
+                    </RadzenColumn>
+                </RadzenRow>
+            </RadzenCard>
         </RadzenTabsItem>
         <RadzenTabsItem Text="Create mapping" Disabled="@(string.IsNullOrEmpty(this._savedQuery))">
             <RadzenText TextStyle="TextStyle.H5" TagName="TagName.H3" class="rz-my-6">2. Hello From Step 3</RadzenText>
@@ -332,7 +362,84 @@
 
 }
 
+@code
+{
+    
+    private string _inputJson = "";
+    private string _cSharpClasses = "";
 
+    async Task GetClasses()
+    {
+        try
+        {
+            string error = "";
+            if (!IsValidJson(this._inputJson.Trim(), out error))
+            {
+                this._infomsgs = error;
+                return;
+            }
+
+            this._loadignBarValue = 100;
+            await Task.Run(async () =>
+            {
+
+            });
+            Xamasoft.JsonClassGenerator.JsonClassGenerator jsonClassGenerator = new JsonClassGenerator();
+            string srtClasses = jsonClassGenerator.GenerateClasses(this._inputJson.Trim(), out error).ToString();
+            if (string.IsNullOrEmpty(srtClasses))
+            {
+                this._infomsgs = $"Something went wrong. No classes created! Error message:{error}";
+            }
+            else
+            {
+                this._cSharpClasses = srtClasses;
+            }
+            this._loadignBarValue = 0;
+        }
+        catch (Exception exc)
+        {
+            this._loadignBarValue = 0;
+            this._infomsgs = $"Exception in GetClasses. Exception message:{exc.Message}";
+        }
+    }
+
+    private bool IsValidJson(string strInput, out string err)
+    {
+        err = "";
+        if (string.IsNullOrWhiteSpace(strInput))
+        {
+            err = "Json Input is empty.";
+            return false;
+        }
+
+        strInput = strInput.Trim();
+        if ((strInput.StartsWith("{") && strInput.EndsWith("}")) || //For object
+     (strInput.StartsWith("[") && strInput.EndsWith("]"))) //For array
+        {
+            try
+            {
+                var obj = JToken.Parse(strInput);
+                return true;
+            }
+            catch (JsonReaderException jex)
+            {
+                //Exception in parsing json
+                err = jex.Message;
+                return false;
+            }
+            catch (Exception ex) //some other exception
+            {
+                err = ex.ToString();
+                return false;
+            }
+        }
+        else
+        {
+            return false;
+        }
+    }
+    
+}
 
 
 
