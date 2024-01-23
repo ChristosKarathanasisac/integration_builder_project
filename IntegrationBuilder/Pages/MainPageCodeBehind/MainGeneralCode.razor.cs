@@ -1,3 +1,4 @@
+using IntegrationBuilder.HuggingChatUtilities;
 using IntegrationBuilder.SQLServerUtilities;
 using IntegrationBuilder.VannaAIUtilities;
 using Radzen;
@@ -17,6 +18,7 @@ namespace IntegrationBuilder.Pages
         private string _savedQuery;
         TabPosition tabPosition = TabPosition.Top;
         private int _loadignBarValue;
+        
 
         //---------------------------------
         //Functions
@@ -35,6 +37,7 @@ namespace IntegrationBuilder.Pages
             this._loadignBarValue = 0;
             _savedQuery = "";
             this._savedCSharpClasses = "";
+            this._huggingChatUtilitiesService = new HuggingChatUtilitiesService();
         }
 
         private void OnChangeStep(int index)

@@ -1,4 +1,5 @@
 ﻿@inject IConfiguration configuration
+@using IntegrationBuilder.HuggingChatUtilities
 @using IntegrationBuilder.SQLServerUtilities;
 @using IntegrationBuilder.VannaAIUtilities;
 @using Microsoft.EntityFrameworkCore
@@ -326,8 +327,79 @@
                 </RadzenRow>
             </RadzenCard>
         </RadzenTabsItem>
-        <RadzenTabsItem Text="Create mapping" Disabled="@(string.IsNullOrEmpty(this._savedQuery))">
-            <RadzenText TextStyle="TextStyle.H5" TagName="TagName.H3" class="rz-my-6">2. Hello From Step 3</RadzenText>
+        <RadzenTabsItem Text="Create mapping" Disabled="@(string.IsNullOrEmpty(this._savedCSharpClasses))">
+            <RadzenProgressBar Value="@this._loadignBarValue" ShowValue="false" Mode="ProgressBarMode.Indeterminate" />
+            <RadzenCard>
+                <RadzenText TextStyle="TextStyle.DisplayH6" TagName="TagName.H6" class="mb-0">Create Mapping</RadzenText>
+                <RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="build" class="mt-2 mb-4" Text="Create Mapping"
+                              Click="@BtnCreateMapping" />
+
+                <RadzenSplitter Orientation="Orientation.Vertical">
+                    <RadzenSplitterPane>
+                        <RadzenSplitter>
+                            <RadzenSplitterPane>
+                                <RadzenSteps>
+                                    <Steps>
+                                        <RadzenStepsItem Text="Set Query">
+                                            <RadzenColumn Size="12" SizeMD="12">
+                                                <RadzenRow Gap="6rem" JustifyContent="JustifyContent.Left">
+
+                                                    <RadzenCard Style="width=30%">
+                                                        <RadzenText TextStyle="TextStyle.Caption" TagName="TagName.H3">Query</RadzenText>
+                                                        <RadzenTextArea Cols="110" Rows="16" @bind-Value=@_query />
+                                                    </RadzenCard>
+                                                </RadzenRow>
+                                            </RadzenColumn>
+                                        </RadzenStepsItem>
+                                        <RadzenStepsItem Text="Set Object Class">
+                                            <RadzenColumn Size="12" SizeMD="12">
+                                                <RadzenRow Gap="6rem" JustifyContent="JustifyContent.Left">
+                                                    <RadzenCard Style="width=30%">
+                                                        <RadzenText TextStyle="TextStyle.Caption" TagName="TagName.H3">Object Class</RadzenText>
+                                                        <RadzenTextArea Cols="110" Rows="16" @bind-Value=@_objClassStr />
+                                                    </RadzenCard>
+                                                </RadzenRow>
+                                            </RadzenColumn>
+                                        </RadzenStepsItem>
+                                        <RadzenStepsItem Text="Describe Mapping">
+                                            <RadzenColumn Size="12" SizeMD="12">
+                                                <RadzenRow Gap="2rem" JustifyContent="JustifyContent.Left">
+                                                    <RadzenCard Style="width=30%">
+                                                        <RadzenText TextStyle="TextStyle.Caption" TagName="TagName.H3">Describe Mapping</RadzenText>
+                                                        <RadzenTextArea Cols="110" Rows="16" @bind-Value=@_mappingDesc />
+                                                    </RadzenCard>
+                                                </RadzenRow>
+                                            </RadzenColumn>
+                                        </RadzenStepsItem>
+                                    </Steps>
+                                </RadzenSteps>
+                            </RadzenSplitterPane>
+                            <RadzenSplitterPane>
+                                <RadzenColumn Size="12" SizeMD="12">
+                                    <RadzenRow Gap="6rem" JustifyContent="JustifyContent.Left">
+                                        <RadzenCard Style="width=30%">
+                                            <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Result Class</RadzenText>
+                                            <RadzenTextArea Cols="110" Rows="20" @bind-Value=@_resultClass />
+                                        </RadzenCard>
+                                    </RadzenRow>
+                                </RadzenColumn>
+                                <RadzenCard>
+
+                                </RadzenCard>
+                            </RadzenSplitterPane>
+                        </RadzenSplitter>
+                    </RadzenSplitterPane>
+                </RadzenSplitter>
+
+                <RadzenRow Gap="2rem" JustifyContent="JustifyContent.Center">
+                    <RadzenColumn Size="12" SizeMD="6">
+                        <RadzenCard>
+                            <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Info Log</RadzenText>
+                            <RadzenTextArea Rows="4" Disabled="true" @bind-Value=@_infomsgs class="w-100" />
+                        </RadzenCard>
+                    </RadzenColumn>
+                </RadzenRow>
+            </RadzenCard>
         </RadzenTabsItem>
     </Tabs>
 </RadzenTabs>
@@ -398,6 +470,74 @@
 }
 
 
+@code
+{
+    private HuggingChatUtilitiesService _huggingChatUtilitiesService;
+    private string _query;
+    private string _objClassStr;
+    private string _mappingDesc;
+    private string _resultClass;
+    // private string _infomsgs;
+    // private int _loadignBarValue;
+
+   
+
+    async Task BtnCreateMapping()
+    {
+        this._loadignBarValue = 100;
+        this.StateHasChanged();
+        await Task.Run(async () =>
+        {
+            this._infomsgs = "";
+            if (string.IsNullOrEmpty(_query))
+            {
+                this._infomsgs = "Query field is empty!";
+                this._loadignBarValue = 0;
+                return;
+            }
+
+            if (string.IsNullOrEmpty(_objClassStr))
+            {
+                this._infomsgs = "Object class field is empty!";
+                this._loadignBarValue = 0;
+                return;
+            }
+
+            if (string.IsNullOrEmpty(_mappingDesc))
+            {
+                this._infomsgs = "Mapping Description field is empty!";
+                this._loadignBarValue = 0;
+                return;
+            }
+
+            StringBuilder urlBuilder = new StringBuilder();
+            urlBuilder.Append(configuration["ApplicationInfo:HuggingChatMainURL"].ToString());
+            urlBuilder.Append("/");
+            urlBuilder.Append(configuration["ApplicationInfo:useHaggingChat"].ToString());
+            string resp = "";
+            string error = "";
+            string instructions = @"Create a method that executes the given query on a SQL Server database.
+                                It should store the returned records in a DataTable, then create an object of the root class based on this data.
+                                Subsequently, convert this object to JSON using the Newtonsoft library and execute a POST request to a specified URL.
+                                Do the entire mapping. Give me only the method with the mapping";
+            string huggingChatInput = this._query + '\n' + this._objClassStr + '\n' + this._mappingDesc + '\n' + instructions;
+            string conversation_id = "";
+            resp = this._huggingChatUtilitiesService.UseHaggingChat(urlBuilder.ToString(), huggingChatInput, true, out conversation_id, out error, "-999");
+            if (string.IsNullOrEmpty(resp))
+            {
+                this._infomsgs = $"Something went wrong in Use Hugging Chat. Error message: {error}";
+                this._loadignBarValue = 0;
+                return;
+            }
+
+            this._resultClass = resp;
+
+        });
+        this._loadignBarValue = 0;
+        this.StateHasChanged();
+
+    }
+}
 
 
 
