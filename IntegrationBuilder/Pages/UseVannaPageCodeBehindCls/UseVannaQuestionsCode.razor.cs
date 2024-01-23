@@ -57,7 +57,6 @@ namespace IntegrationBuilder.Pages
                     {
                         this._infomsgs = $"Something went wrong in Vanna Generate SQL. Error message: {error}";
                         this._loadignBarValue = 0;
-                        this.StateHasChanged();
                         return;
                     }
                 });
@@ -68,7 +67,6 @@ namespace IntegrationBuilder.Pages
             {
                 _infomsgs = $"Exception in BtnAskVanna {exc.Message}.";
                 this._loadignBarValue = 0;
-                this.StateHasChanged();
             }
         }
     }

@@ -3,6 +3,7 @@
 @using IntegrationBuilder.HuggingChatUtilities;
 @inject IConfiguration configuration
 
+<RadzenProgressBar Value="@this._loadignBarValue" ShowValue="false" Mode="ProgressBarMode.Indeterminate" />
 <RadzenCard>
     <RadzenText TextStyle="TextStyle.DisplayH6" TagName="TagName.H6" class="mb-0">Use Hugging Chat</RadzenText>
     <RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="build" class="mt-2 mb-4" Text="Ask Hugging Chat"
@@ -21,12 +22,6 @@
             </RadzenCard>
 
             <RadzenCard Style="width=40%">
-                @if (_isLoading)
-                {
-                    <div class="spinner-border" role="status">
-                        <span class="visually-hidden">Loading...</span>
-                    </div>
-                }
                 <RadzenText TextStyle="TextStyle.Caption" TagName="TagName.H3">Hugging Chat Response</RadzenText>
                 <RadzenTextArea Cols="80" Rows="17" @bind-Value=@_huggingResponse />
             </RadzenCard>

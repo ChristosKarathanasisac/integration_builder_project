@@ -3,6 +3,7 @@
 @using IntegrationBuilder.HuggingChatUtilities;
 @inject IConfiguration configuration
 
+<RadzenProgressBar Value="@this._loadignBarValue" ShowValue="false" Mode="ProgressBarMode.Indeterminate" />
 <RadzenCard>
     <RadzenText TextStyle="TextStyle.DisplayH6" TagName="TagName.H6" class="mb-0">Create Mapping</RadzenText>
     <RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="build" class="mt-2 mb-4" Text="Create Mapping"

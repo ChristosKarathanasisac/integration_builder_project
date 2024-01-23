@@ -27,21 +27,22 @@ namespace IntegrationBuilder.Pages
         private string _infomsgs;
         private bool _isNewChat;
         private string _conversation_id;
-        private bool _isLoading;
         private HuggingChatUtilitiesService huggingChatUtilitiesService;
+        private int _loadignBarValue;
+
         protected override async Task OnInitializedAsync()
         {
             this._isNewChat = true;
             this.huggingChatUtilitiesService = new HuggingChatUtilitiesService();
             this._conversation_id = "";
-            _isLoading = false;
+            this._loadignBarValue = 0;
         }
 
         async Task BtnAskHuggingChat()
         {
             try
             {
-                this._isLoading = true;
+                this._loadignBarValue = 100;
                 this.StateHasChanged();
                 this._huggingResponse = "";
                 this._infomsgs = "";
@@ -52,6 +53,7 @@ namespace IntegrationBuilder.Pages
                     if (string.IsNullOrEmpty(this._userQuestion))
                     {
                         this._infomsgs = "Insert a Question!";
+                        this._loadignBarValue = 0;
                         return;
                     }
 
@@ -66,7 +68,7 @@ namespace IntegrationBuilder.Pages
                     this._infomsgs = $"Something went wrong in Use Hugging Chat. Error message: {error}";
                 }
 
-                this._isLoading = false;
+                this._loadignBarValue = 0;
                 this.StateHasChanged();
             }
             catch (Exception exc)

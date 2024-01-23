@@ -265,7 +265,6 @@ namespace IntegrationBuilder.Pages
                     {
                         this._infomsgs = $"Something went wrong in Train with tables. Message: {errorMsg}";
                         this._loadignBarValue = 0;
-                        this.StateHasChanged();
                         return;
                     }
 
@@ -278,7 +277,6 @@ namespace IntegrationBuilder.Pages
             {
                 this._infomsgs = $"Exception in BtnTrainWithTables. Exception message: {exc.Message}";
                 this._loadignBarValue = 0;
-                this.StateHasChanged();
                 return;
             }
         }
@@ -309,7 +307,6 @@ namespace IntegrationBuilder.Pages
             {
                 this._infomsgs = $"Exception in BtnTrainWithDocumentation. Exception message: {exc.Message}";
                 this._loadignBarValue = 0;
-                this.StateHasChanged();
             }
         }
 
@@ -349,7 +346,6 @@ namespace IntegrationBuilder.Pages
                     {
                         this._infomsgs = $"Something went wrong in Train with views. Message: {errorMsg}";
                         this._loadignBarValue = 0;
-                        this.StateHasChanged();
                         return;
                     }
 
@@ -362,7 +358,6 @@ namespace IntegrationBuilder.Pages
             {
                 this._infomsgs = $"Exception in BtnTrainWithViews. Exception message: {exc.Message}";
                 this._loadignBarValue = 0;
-                this.StateHasChanged();
                 return;
             }
         }
