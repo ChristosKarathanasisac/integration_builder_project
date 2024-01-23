@@ -8,7 +8,7 @@
 @page "/main"
 
 
-
+<RadzenProgressBar Value="@this._loadignBarValue" ShowValue="false" Mode="ProgressBarMode.Indeterminate" />
 <RadzenTabs TabPosition="@TabPosition.Right">
     <Tabs>
         <RadzenTabsItem Text="Connect/Train Vanna Model">
@@ -332,19 +332,9 @@
 
 }
 
-@code {
 
-    //This should be replaced
-    private bool _isLoadingConnectToVanna;
-    private bool _isLoadingTrainWithTables;
-    private bool _isLoadingTrainWithViews;
-    private bool _isLoadingTrainWithSql;
-    private bool _isLoadingTrainWithDocumentation;
-    private bool _isLoadingAskQuestions;
 
-}
 
-}
 
 
 

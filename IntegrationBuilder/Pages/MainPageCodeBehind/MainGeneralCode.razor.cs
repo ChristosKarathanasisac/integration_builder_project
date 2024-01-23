@@ -16,6 +16,8 @@ namespace IntegrationBuilder.Pages
         private bool _DisabledStep4 = true;
         private string _savedQuery;
         TabPosition tabPosition = TabPosition.Top;
+        private int _loadignBarValue;
+
         //---------------------------------
         //Functions
         //---------------------------------
@@ -30,10 +32,7 @@ namespace IntegrationBuilder.Pages
             _viewDDLDocumentations = new List<DDLDocumentation>();
             _sqlStatementForTrain = "";
             _documentationForTrain = "";
-            _isLoadingConnectToVanna = false;
-            _isLoadingTrainWithTables = false;
-            _isLoadingTrainWithViews = false;
-            _isLoadingTrainWithSql = false;
+            this._loadignBarValue = 0;
             _savedQuery = "";
         }
 
