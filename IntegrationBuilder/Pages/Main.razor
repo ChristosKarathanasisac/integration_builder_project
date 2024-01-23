@@ -297,6 +297,10 @@
                 <RadzenText TextStyle="TextStyle.DisplayH6" TagName="TagName.H6" class="mb-0">Create c# classes</RadzenText>
                 <RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="build" class="mt-2 mb-4" Text="Get Classes"
                               Click="@GetClasses" />
+                <RadzenButton ButtonStyle="ButtonStyle.Primary" Disabled="@((string.IsNullOrEmpty(this._cSharpClasses))  || (!string.IsNullOrEmpty(this._savedCSharpClasses)) )" Icon="done_all" class="mt-2 mb-4" Text="Save C# Classes"
+                              Click="@BtnSaveCSharpClasses"/>
+                <RadzenButton ButtonStyle="ButtonStyle.Primary" Disabled="@(string.IsNullOrEmpty(this._savedCSharpClasses))" Icon="pageview" class="mt-2 mb-4" Text="Preview/Change saved Classes"
+                              Click="@BtnShowCSharpClasses" />
 
                 <RadzenColumn Size="12" SizeMD="12">
                     <RadzenRow Gap="6rem" JustifyContent="JustifyContent.Center">
@@ -308,7 +312,7 @@
 
                         <RadzenCard Style="width=40%">
                             <RadzenText TextStyle="TextStyle.Caption" TagName="TagName.H3">C# Classes</RadzenText>
-                            <RadzenTextArea Cols="80" Rows="17" @bind-Value=@_cSharpClasses />
+                            <RadzenTextArea Cols="80" ReadOnly="@(!string.IsNullOrEmpty(this._savedCSharpClasses))" Rows="17" @bind-Value=@_cSharpClasses />
                         </RadzenCard>
                     </RadzenRow>
                 </RadzenColumn>
@@ -364,82 +368,35 @@
 
 @code
 {
-    
-    private string _inputJson = "";
-    private string _cSharpClasses = "";
-
-    async Task GetClasses()
+    async Task ShowCSharpClasses()
     {
-        try
-        {
-            string error = "";
-            if (!IsValidJson(this._inputJson.Trim(), out error))
-            {
-                this._infomsgs = error;
-                return;
-            }
-
-            this._loadignBarValue = 100;
-            await Task.Run(async () =>
-            {
-
-            });
-            Xamasoft.JsonClassGenerator.JsonClassGenerator jsonClassGenerator = new JsonClassGenerator();
-            string srtClasses = jsonClassGenerator.GenerateClasses(this._inputJson.Trim(), out error).ToString();
-            if (string.IsNullOrEmpty(srtClasses))
-            {
-                this._infomsgs = $"Something went wrong. No classes created! Error message:{error}";
-            }
-            else
-            {
-                this._cSharpClasses = srtClasses;
-            }
-            this._loadignBarValue = 0;
-        }
-        catch (Exception exc)
-        {
-            this._loadignBarValue = 0;
-            this._infomsgs = $"Exception in GetClasses. Exception message:{exc.Message}";
-        }
+        var result = await DialogService.OpenAsync("Query", ds =>
+    @<RadzenStack Gap="1.5rem">
+        <RadzenStack Orientation="Orientation.Horizontal" Gap="0.5rem" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.SpaceBetween">
+            <RadzenStack Orientation="Orientation.Horizontal">
+                <RadzenCard>
+                    <RadzenCard Style="width=40%">
+                        <RadzenText TextStyle="TextStyle.Caption" TagName="TagName.H3">C# Classes</RadzenText>
+                        <RadzenTextArea Cols="80" Rows="17" @bind-Value=@_savedCSharpClasses Change="RefreshPopupClasses" />
+                    </RadzenCard>
+                    <RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="build" class="mt-2 mb-4" Text="Clear"
+                                  Click="@BtnClearSavedClasses" Disabled="@(string.IsNullOrEmpty( this._savedCSharpClasses))" />
+                    <RadzenButton Text="Exit" Click="() => ds.Close(false)" ButtonStyle="ButtonStyle.Light" />
+                </RadzenCard>
+            </RadzenStack>
+        </RadzenStack>
+    </RadzenStack>
+    , new DialogOptions() { Width = $"{50}%", Height = $"{70}%" });
     }
 
-    private bool IsValidJson(string strInput, out string err)
+    private void RefreshPopupClasses()
     {
-        err = "";
-        if (string.IsNullOrWhiteSpace(strInput))
-        {
-            err = "Json Input is empty.";
-            return false;
-        }
-
-        strInput = strInput.Trim();
-        if ((strInput.StartsWith("{") && strInput.EndsWith("}")) || //For object
-     (strInput.StartsWith("[") && strInput.EndsWith("]"))) //For array
-        {
-            try
-            {
-                var obj = JToken.Parse(strInput);
-                return true;
-            }
-            catch (JsonReaderException jex)
-            {
-                //Exception in parsing json
-                err = jex.Message;
-                return false;
-            }
-            catch (Exception ex) //some other exception
-            {
-                err = ex.ToString();
-                return false;
-            }
-        }
-        else
-        {
-            return false;
-        }
+        //if (!string.IsNullOrEmpty(this._savedQuery)) { return; }
+        this.DialogService.Refresh();
     }
-    
+
 }
+
 
 
 

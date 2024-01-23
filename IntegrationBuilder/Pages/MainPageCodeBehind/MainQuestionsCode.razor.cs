@@ -66,7 +66,7 @@ namespace IntegrationBuilder.Pages
         async Task BtnShowSavedQuery()
         {
             this._infomsgs = "";
-            if (string.IsNullOrEmpty(this._vannaResponse))
+            if (string.IsNullOrEmpty(this._savedQuery))
             {
 
                 this._infomsgs = "Vanna response text box is empty!";

@@ -34,6 +34,7 @@ namespace IntegrationBuilder.Pages
             _documentationForTrain = "";
             this._loadignBarValue = 0;
             _savedQuery = "";
+            this._savedCSharpClasses = "";
         }
 
         private void OnChangeStep(int index)
