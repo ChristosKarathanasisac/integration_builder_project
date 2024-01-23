@@ -19,6 +19,7 @@ using JsonToCSharpClasses;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using Xamasoft.JsonClassGenerator;
+using IntegrationBuilder.HuggingChatUtilities;
 
 namespace IntegrationBuilder.Pages
 {
@@ -27,6 +28,12 @@ namespace IntegrationBuilder.Pages
         private string _inputJson = "";
         private string _cSharpClasses = "";
         private string _infomsgs = "";
+        private int _loadignBarValue;
+        protected override async Task OnInitializedAsync()
+        {
+            this._loadignBarValue = 0;
+        }
+
         async Task GetClasses()
         {
             try
@@ -38,20 +45,26 @@ namespace IntegrationBuilder.Pages
                     return;
                 }
 
+                this._loadignBarValue = 100;
+                await Task.Run(async () =>
+                {
+
+                });
                 Xamasoft.JsonClassGenerator.JsonClassGenerator jsonClassGenerator = new JsonClassGenerator();
                 string srtClasses = jsonClassGenerator.GenerateClasses(this._inputJson.Trim(), out error).ToString();
                 if (string.IsNullOrEmpty(srtClasses))
                 {
-                    this._infomsgs = "Something went wrong. No classes created!";
-                    return;
+                    this._infomsgs = $"Something went wrong. No classes created! Error message:{error}";
                 }
                 else
                 {
                     this._cSharpClasses = srtClasses;
                 }
+                this._loadignBarValue = 0;
             }
             catch (Exception exc)
             {
+                this._loadignBarValue = 0;
                 this._infomsgs = $"Exception in GetClasses. Exception message:{exc.Message}";
             }
         }
