@@ -66,5 +66,58 @@ namespace IntegrationBuilder.Pages
             this.StateHasChanged();
 
         }
+    
+        async Task BtnDownloadProject()
+        {
+            try 
+            {
+                string sourceDirectory = @"C:\ChristosProjects\IntegrationWindowsService";
+                string destinationDirectory = @"C:\ChristosProjects\NewIntegrationWinService";
+
+                CopyDirectory(sourceDirectory, destinationDirectory);
+
+               //Check If Directory Created
+
+                string[] files = Directory.GetFiles(sourceDirectory);
+               
+                string fileContent = File.ReadAllText(filePath);
+                string modifiedContent = fileContent.Replace(@"code1", "new_text");
+            }
+            catch (Exception exc) 
+            {
+                string test = exc.Message;
+            }
+            
+
+          
+        }
+
+        private void CopyDirectory(string source, string destination)
+        {
+            // Δημιουργία του νέου φακέλου αν δεν υπάρχει
+            if (!Directory.Exists(destination))
+            {
+                Directory.CreateDirectory(destination);
+            }
+
+            // Αντιγραφή αρχείων από τον αρχικό φάκελο στον φάκελο προορισμού
+            string[] files = Directory.GetFiles(source);
+            foreach (string file in files)
+            {
+                string fileName = Path.GetFileName(file);
+                string destinationPath = Path.Combine(destination, fileName);
+                File.Copy(file, destinationPath, true);
+            }
+
+            // Αντιγραφή υπο-φακέλων
+            string[] subDirectories = Directory.GetDirectories(source);
+            foreach (string subDirectory in subDirectories)
+            {
+                string subDirectoryName = Path.GetFileName(subDirectory);
+                string newDestination = Path.Combine(destination, subDirectoryName);
+                // Καλεί τη συνάρτηση αναδρομικά για τον κάθε υπο-φάκελο
+                CopyDirectory(subDirectory, newDestination);
+            }
+        }
     }
 }
