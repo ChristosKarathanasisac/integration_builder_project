@@ -4,7 +4,7 @@ using System.Text;
 
 namespace IntegrationBuilder.GeneralUtilities
 {
-    internal class GeneralUtilities
+    public class GeneralUtilities
     {
         public static bool SendRequest(string jsonData, string sUrl, out string sErrormessage, out string result)
         {
@@ -49,6 +49,50 @@ namespace IntegrationBuilder.GeneralUtilities
             responseStream.Close();
             sErrormessage = "";
             return true;
+        }
+
+        public static string GetCleanCodeFromHuggingChat(string initialcode,out string error) 
+        {
+            error = "";
+            try
+            {
+                if (string.IsNullOrEmpty(initialcode))
+                {
+                    error = "Hugging Chat Response was emty";
+                    return "";
+                }
+                else 
+                {
+                    if (initialcode.Contains("```csharp"))
+                    {
+                        int startIndex = initialcode.IndexOf("```csharp");
+                        if (startIndex == -1) 
+                        {
+                            error = "Response was not in default format";
+                            return initialcode;
+                        }
+                        int endIndex = initialcode.IndexOf("```", startIndex + 7);
+                        if (endIndex == -1) 
+                        {
+                            error = "Response was not in default format";
+                            return initialcode;
+                        }
+                        string cleanCode = initialcode.Substring(startIndex + 9, endIndex - startIndex - 9).Trim();
+                        return cleanCode;
+
+                    }
+                    else 
+                    {
+                        error = "Response was not in default format";
+                        return initialcode;
+                    }
+                }
+            }
+            catch (Exception exc) 
+            {
+                error = $"Exception in GetCleanCodeFromHuggingChat. Exception messaeg:{exc.Message}";
+                return "";
+            }
         }
     }
 }

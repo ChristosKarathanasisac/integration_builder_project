@@ -45,11 +45,13 @@ namespace IntegrationBuilder.Pages
                 urlBuilder.Append(configuration["ApplicationInfo:useHaggingChat"].ToString());
                 string resp = "";
                 string error = "";
-                string instructions = @"Create a method that executes the given query on a SQL Server database.
-                                It should store the returned records in a DataTable, then create an object of the root class based on this data.
-                                Subsequently, convert this object to JSON using the Newtonsoft library and execute a POST request to a specified URL.
-                                Do the entire mapping. Give me only the method with the mapping";
-                string huggingChatInput = this._query + '\n' + this._objClassStr + '\n' + this._mappingDesc + '\n' + instructions;
+                string instructions = @"Create a method private Data MappingFun(DataTable d). 
+                                        Inside this method, I want to create an object of the Data class. 
+                                        The data to be inserted into the object is located within the table d passed as a parameter. 
+                                        Please write the entire necessary code for the functionality I described.
+                                        Give only the method and nothing else";
+
+                string huggingChatInput = this._query + '\n' + this._objClassStr + '\n' + this._mappingDesc + '\n'+ instructions;
                 string conversation_id = "";
                 resp = this._huggingChatUtilitiesService.UseHaggingChat(urlBuilder.ToString(), huggingChatInput, true, out conversation_id, out error, "-999");
                 if (string.IsNullOrEmpty(resp))
@@ -59,7 +61,16 @@ namespace IntegrationBuilder.Pages
                     return;
                 }
 
-                this._resultClass = resp;
+                error = "";
+                string cleanResp = GeneralUtilities.GeneralUtilities.GetCleanCodeFromHuggingChat(resp,out error);
+                if (!string.IsNullOrEmpty(error)) 
+                {
+                    this._infomsgs = error;
+                    this._loadignBarValue = 0;
+                    return;
+                }
+
+                this._resultClass = cleanResp;
 
             });
             this._loadignBarValue = 0;
