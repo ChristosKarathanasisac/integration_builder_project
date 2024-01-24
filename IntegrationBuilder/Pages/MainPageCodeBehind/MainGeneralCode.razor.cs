@@ -43,11 +43,13 @@ namespace IntegrationBuilder.Pages
         private void OnChangeStep(int index)
         {
             this._infomsgs = String.Empty;
-            if (index == 1)
+        }
+        private void OnChangeTab(int index) 
+        {
+            if (index == 2) 
             {
-            }
-            else if (index == 2)
-            {
+                this._query = this._savedQuery;
+                this._objClassStr = this._cSharpClasses;
             }
         }
     }
