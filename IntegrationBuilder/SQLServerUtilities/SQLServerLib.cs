@@ -16,13 +16,24 @@ namespace IntegrationBuilder.SQLServerUtilities
                 builder.InitialCatalog = db;
                 //For Windows Authentication
                 builder.IntegratedSecurity = true;
-                builder.ConnectTimeout = 0;
-
-
+                builder.ConnectTimeout = 30;
+                
                 using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
                 {
-                    connection.Open();
-                    connection.Close();
+                    bool flag = false;
+                    try 
+                    {
+                        connection.Open();
+                        flag = true;
+                    }catch (Exception ex) 
+                    {
+                        error = ex.ToString();
+                    }
+                    finally
+                    {
+                        connection.Close();
+                    }
+                    return flag;
                 }
 }
             catch (SqlException e)
