@@ -76,12 +76,19 @@ namespace IntegrationBuilder.Pages
 
                 CopyDirectory(sourceDirectory, destinationDirectory);
 
-               //Check If Directory Created
+                //Check If Directory Created
+                if (!Directory.Exists(destinationDirectory))
+                {
+                    this._infomsgs = "Something went wrong with project creation.";
+                    return;
+                }
 
-                string[] files = Directory.GetFiles(sourceDirectory);
-               
+                string filePath = $"{destinationDirectory}\\IntegrationWinService\\IntegrationWinService\\IntegrationBuilder.cs";
                 string fileContent = File.ReadAllText(filePath);
                 string modifiedContent = fileContent.Replace(@"code1", "new_text");
+                File.WriteAllText(filePath, modifiedContent);
+
+                //I should delete the file after download!
             }
             catch (Exception exc) 
             {
