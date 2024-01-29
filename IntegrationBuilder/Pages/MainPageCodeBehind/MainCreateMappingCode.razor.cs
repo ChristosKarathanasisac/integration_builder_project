@@ -94,16 +94,25 @@ namespace IntegrationBuilder.Pages
                     return;
                 }
 
+
+                //Step 1 insert method in template project
                 string filePath = $"{destinationDirectory}\\IntegrationWinService\\IntegrationWinService\\IntegrationBuilder.cs";
                 string fileContent = File.ReadAllText(filePath);
-                string modifiedContent = fileContent.Replace(@"code1", "new_text");
+                string modifiedContent = fileContent.Replace("//rep_code1", _resultClass);
                 File.WriteAllText(filePath, modifiedContent);
+
+                //Step 2 insert the IntegrationData class.
+                filePath = $"{destinationDirectory}\\IntegrationWinService\\IntegrationWinService\\IntegrationData.cs";
+                fileContent = File.ReadAllText(filePath);
+                modifiedContent = fileContent.Replace("//rep_code2", _objClassStr);
+                File.WriteAllText(filePath, modifiedContent);
+
 
                 //I should delete the file after download!
             }
             catch (Exception exc) 
             {
-                string test = exc.Message;
+                this._infomsgs = $"Exception in BtnDownloadProject. Exception message:{exc.Message}";
             }
             
 
