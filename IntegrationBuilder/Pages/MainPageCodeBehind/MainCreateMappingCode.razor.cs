@@ -1,4 +1,5 @@
 using IntegrationBuilder.HuggingChatUtilities;
+using Microsoft.JSInterop;
 using System.Text;
 
 namespace IntegrationBuilder.Pages
@@ -99,6 +100,8 @@ namespace IntegrationBuilder.Pages
                 string filePath = $"{destinationDirectory}\\IntegrationWinService\\IntegrationWinService\\IntegrationBuilder.cs";
                 string fileContent = File.ReadAllText(filePath);
                 string modifiedContent = fileContent.Replace("//rep_code1", _resultClass);
+                modifiedContent = modifiedContent.Replace("//rep_DataSource", this._sqlServerCredentials.Server);
+                modifiedContent = modifiedContent.Replace("//rep_Initialcatalog", this._sqlServerCredentials.Database);
                 File.WriteAllText(filePath, modifiedContent);
 
                 //Step 2 insert the IntegrationData class.
@@ -107,17 +110,66 @@ namespace IntegrationBuilder.Pages
                 modifiedContent = fileContent.Replace("//rep_code2", _objClassStr);
                 File.WriteAllText(filePath, modifiedContent);
 
+                //I should download the creatded project
+                await DownLoadFile();
 
-                //I should delete the file after download!
+                //I should delete the created project after download!
             }
             catch (Exception exc) 
             {
                 this._infomsgs = $"Exception in BtnDownloadProject. Exception message:{exc.Message}";
             }
-            
-
-          
         }
+
+        private async Task DownLoadFile()
+        {
+            this._infomsgs = "";
+            var fileStream = CopyFileToMemory();
+            if (fileStream == null)
+            {
+                return;
+            }
+            using var streamRef = new DotNetStreamReference(stream: fileStream);
+            try
+            {
+                await JS.InvokeVoidAsync("downloadFileFromStream", "test", streamRef);
+            }
+            catch (Exception exc)
+            {
+            }
+        }
+
+        private Stream CopyFileToMemory()
+        {
+            try
+            {
+                var ms = new MemoryStream();
+                //Τσεκ αν το αρχείο υπάρχει στην διαδρομή που έχει οριστεί στον server
+                string dir = configuration["ApplicationInfo:NewProject"].ToString();
+               
+                if (!Directory.Exists(dir))
+                {
+                    this._infomsgs = "Directory of the new project missing";
+                    return null;
+                }
+
+                string test = dir + @"\test.txt";
+                using (FileStream fs = File.OpenRead(test))
+                {
+                    fs.CopyTo(ms);
+                }
+
+                //Πρέπει να γίνει οποσδήποτε αυτό για να διαβαστεί το αρχείο. Αλλιώς θα το κατεβάσει κενό
+                ms.Position = 0;
+                return ms;
+            }
+            catch (Exception exc)
+            {
+                _infomsgs = "Exception in CopyFileToMemory. Exception message: " + exc.Message;
+                return null;
+            }
+        }
+
 
         private void CopyDirectory(string source, string destination)
         {
