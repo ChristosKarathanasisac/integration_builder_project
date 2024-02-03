@@ -1,5 +1,6 @@
 using IntegrationBuilder.HuggingChatUtilities;
 using Microsoft.JSInterop;
+using System.IO.Compression;
 using System.Text;
 
 namespace IntegrationBuilder.Pages
@@ -111,6 +112,7 @@ namespace IntegrationBuilder.Pages
                 File.WriteAllText(filePath, modifiedContent);
 
                 //I should download the creatded project
+                ZipFolder($"{destinationDirectory}\\IntegrationWinService", $"{ destinationDirectory}\\IntegrationWinService.zip");
                 await DownLoadFile();
 
                 //I should delete the created project after download!
@@ -152,9 +154,12 @@ namespace IntegrationBuilder.Pages
                     this._infomsgs = "Directory of the new project missing";
                     return null;
                 }
+                string destinationDirectory = @"C:\ChristosProjects\NewIntegrationWinService";
+                string file = $"{destinationDirectory}\\IntegrationWinService.zip";
 
-                string test = dir + @"\test.txt";
-                using (FileStream fs = File.OpenRead(test))
+                //Check if file exist
+
+                using (FileStream fs = File.OpenRead(file))
                 {
                     fs.CopyTo(ms);
                 }
@@ -169,7 +174,17 @@ namespace IntegrationBuilder.Pages
                 return null;
             }
         }
-
+        static void ZipFolder(string folderPath, string zipFilePath)
+        {
+            try
+            {
+                ZipFile.CreateFromDirectory(folderPath, zipFilePath);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error creating zip file: {ex.Message}");
+            }
+        }
 
         private void CopyDirectory(string source, string destination)
         {
