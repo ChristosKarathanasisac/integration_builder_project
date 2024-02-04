@@ -79,11 +79,16 @@ namespace IntegrationBuilder.Pages
             this.StateHasChanged();
 
         }
-    
         async Task BtnDownloadProject()
         {
             try 
             {
+                if (string.IsNullOrEmpty(_resultClass))
+                {
+                    this._infomsgs = "Result method is empty. Create the code first.";
+                    return;
+                }
+
                 string sourceDirectory = @"C:\ChristosProjects\IntegrationWindowsService";
                 string destinationDirectory = @"C:\ChristosProjects\NewIntegrationWinService";
 
@@ -115,7 +120,9 @@ namespace IntegrationBuilder.Pages
                 ZipFolder($"{destinationDirectory}\\IntegrationWinService", $"{ destinationDirectory}\\IntegrationWinService.zip");
                 await DownLoadFile();
 
-                //I should delete the created project after download!
+                //I should delete the created project (Folder and zip) after download!
+                Directory.Delete(destinationDirectory+ "\\IntegrationWinService", true);
+                File.Delete($"{destinationDirectory}\\IntegrationWinService.zip");
             }
             catch (Exception exc) 
             {
@@ -134,19 +141,18 @@ namespace IntegrationBuilder.Pages
             using var streamRef = new DotNetStreamReference(stream: fileStream);
             try
             {
-                await JS.InvokeVoidAsync("downloadFileFromStream", "test", streamRef);
+                await JS.InvokeVoidAsync("downloadFileFromStream", "IntegrationWinService.zip", streamRef);
             }
             catch (Exception exc)
             {
+                _infomsgs = "Exception in DownLoadFile. Exception message: " + exc.Message;
             }
         }
-
         private Stream CopyFileToMemory()
         {
             try
             {
                 var ms = new MemoryStream();
-                //Τσεκ αν το αρχείο υπάρχει στην διαδρομή που έχει οριστεί στον server
                 string dir = configuration["ApplicationInfo:NewProject"].ToString();
                
                 if (!Directory.Exists(dir))
@@ -164,7 +170,7 @@ namespace IntegrationBuilder.Pages
                     fs.CopyTo(ms);
                 }
 
-                //Πρέπει να γίνει οποσδήποτε αυτό για να διαβαστεί το αρχείο. Αλλιώς θα το κατεβάσει κενό
+                //For file download. Without this I will download empty file
                 ms.Position = 0;
                 return ms;
             }
@@ -188,13 +194,10 @@ namespace IntegrationBuilder.Pages
 
         private void CopyDirectory(string source, string destination)
         {
-            // Δημιουργία του νέου φακέλου αν δεν υπάρχει
             if (!Directory.Exists(destination))
             {
                 Directory.CreateDirectory(destination);
             }
-
-            // Αντιγραφή αρχείων από τον αρχικό φάκελο στον φάκελο προορισμού
             string[] files = Directory.GetFiles(source);
             foreach (string file in files)
             {
@@ -202,14 +205,11 @@ namespace IntegrationBuilder.Pages
                 string destinationPath = Path.Combine(destination, fileName);
                 File.Copy(file, destinationPath, true);
             }
-
-            // Αντιγραφή υπο-φακέλων
             string[] subDirectories = Directory.GetDirectories(source);
             foreach (string subDirectory in subDirectories)
             {
                 string subDirectoryName = Path.GetFileName(subDirectory);
                 string newDestination = Path.Combine(destination, subDirectoryName);
-                // Καλεί τη συνάρτηση αναδρομικά για τον κάθε υπο-φάκελο
                 CopyDirectory(subDirectory, newDestination);
             }
         }

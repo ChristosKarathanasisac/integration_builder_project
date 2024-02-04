@@ -46,11 +46,6 @@ namespace IntegrationBuilder.Pages
             _viewDDLDocumentations = new List<DDLDocumentation>();
             _sqlStatementForTrain = "";
             _documentationForTrain = "";
-            //_isLoadingConnectToVanna = false;
-            //_isLoadingTrainWithTables = false;
-            //_isLoadingTrainWithViews = false;
-            //_isLoadingTrainWithSql = false;
-            //Initialize the progress bar
             this._loadignBarValue = 0;
         }
 

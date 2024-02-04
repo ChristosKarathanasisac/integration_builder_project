@@ -327,8 +327,8 @@
                 </RadzenRow>
             </RadzenCard>
         </RadzenTabsItem>
-        <RadzenTabsItem Text="Create mapping" Disabled="@(false)">
-           @*  Disabled="@(string.IsNullOrEmpty(this._savedCSharpClasses)) *@
+        <RadzenTabsItem Text="Create mapping" Disabled="@(string.IsNullOrEmpty(this._savedCSharpClasses))">
+            @* string.IsNullOrEmpty(this._savedCSharpClasses)) *@
             <RadzenCard>
                 <RadzenText TextStyle="TextStyle.DisplayH6" TagName="TagName.H6" class="mb-0">Create Mapping</RadzenText>
                 <RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="build" class="mt-2 mb-4" Text="Create Mapping"
